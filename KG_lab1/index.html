@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Squares Drawer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body class="light-mode">
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>ERROR!</h2>
+        <p id="errorMessage">Incorrect coordinates: X2 and Y2 must be greater than X1 and Y1.</p>
+    </div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>Canvas Squares Drawer</h1>
+    </header>
+    <div class="controls">
+        <div class="input-group">
+            <label for="X1">X1:</label>
+            <input type="number" id="X1" value="5">
+        </div>
+        <div class="input-group">
+            <label for="Y1">Y1:</label>
+            <input type="number" id="Y1" value="5">
+        </div>
+        <div class="input-group">
+            <label for="X2">X2:</label>
+            <input type="number" id="X2" value="10">
+        </div>
+        <div class="input-group">
+            <label for="Y2">Y2:</label>
+            <input type="number" id="Y2" value="10">
+        </div>
+        <div class="input-group">
+            <label for="color">Color:</label>
+            <input type="color" id="color" value="#000000">
+        </div>
+        <div class="input-group">
+            <input type="checkbox" id="withCircle">
+            <label for="withCircle">Include Circle</label>
+        </div>
+        <button onclick="drawSquare()" class="draw-button">Draw Square</button>
+        <button onclick="clearCanvas()" class="clear-button">Clear Canvas</button>
+        <button onclick="clearLastSquare()" class="removeLast-button">Remove Last Square</button>
+    </div>
+    <canvas id="canvas" width="1200" height="600"></canvas>
+</div>
+</body>
+</html>
