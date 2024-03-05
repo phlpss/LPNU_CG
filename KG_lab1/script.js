@@ -29,13 +29,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         close.onclick = function () {
             errorModal.style.display = "none";
-            drawAllSquares();
         }
 
         window.onclick = function (event) {
             if (event.target === errorModal) {
                 errorModal.style.display = "none";
-                drawAllSquares();
             }
         }
     }
@@ -127,6 +125,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.drawSquare = function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         // Function to get value from input
         const getValue = (id) => parseInt(document.getElementById(id).value);
 
@@ -146,24 +146,42 @@ document.addEventListener("DOMContentLoaded", function () {
         const canvasPoint1 = toCanvasCoords(x1, y1);
         const canvasPoint2 = toCanvasCoords(x2, y2);
 
-        
+        // Calculate square dimensions
+        const width = Math.abs(canvasPoint2.x - canvasPoint1.x);
+        const height = Math.abs(canvasPoint2.y - canvasPoint1.y);
+
+        // Check for valid square dimensions
+        if (width <= 0 || height <= 0 || width !== height) {
+            showError("Incorrect values: The provided coordinates must form a square with positive dimensions.");
+            return;
+        }
+
+        const isWithCircle = document.getElementById("withCircle").checked;
+        const color = document.getElementById("color").value;
+
+        const square = {
+            x1: canvasPoint1.x,
+            y1: canvasPoint1.y - width,
+            width,
+            height,
+            isWithCircle,
+            color
+        };
 
         squares.push(square);
         drawAllSquares();
-    };
+    }
+
 
     function drawAllSquares() {
         drawScreen();
 
-        squares.forEach(square => {ctx.save();
+        squares.forEach(square => {
             ctx.strokeStyle = square.color;
 
-            // Drawing the rotated square using lines
+            // Drawing a square
             ctx.beginPath();
-            square.corners.forEach((corner, i) => {
-                ctx.lineTo(corner.x, corner.y);
-            });
-            // ctx.closePath();
+            ctx.rect(square.x1, square.y1, square.width, square.height);
             ctx.stroke();
 
             // Hatching a square
