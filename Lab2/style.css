@@ -8,111 +8,88 @@
     --color-canvas-border: #ccc;
 }
 
-body {
+body, input, button {
     font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+body {
     margin: 0;
-    padding: 20px;
-    transition: background-color 0.3s, color 0.3s;
+    padding: 0;
     background-color: var(--color-background);
     color: var(--color-text);
 }
 
-.container {
-    max-width: 1200px;
-    margin: auto;
-    text-align: center;
-}
-
 header {
-    display: block;
-    align-items: start;
-    margin-bottom: 20px;
+    text-align: center;
+    padding: 20px 0;
+    background: var(--color-primary);
+    color: white;
 }
 
 h1 {
-    margin-bottom: 40px;
+    margin: 0;
 }
 
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: var(--color-button);
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin: 5px;
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding: 20px;
 }
 
-button:hover {
-    background-color: var(--color-button-hover);
+.tools {
+    padding: 20px;
+    margin-right: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
-/*.controls {*/
-/*    display: grid;*/
-/*    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));*/
-/*    gap: 10px;*/
-/*    margin-bottom: 20px;*/
-/*}*/
 
 .input-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 10px;
 }
 
 label {
+    display: block;
     margin-bottom: 5px;
 }
 
 input[type="text"] {
-    padding: 8px 10px;
-    border-radius: 5px;
-    border-color: #58a6ff;
-    color: var(--color-text);
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid var(--color-primary);
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.buttons button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    background-color: var(--color-button);
+    margin-bottom: 10px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+
+.buttons button:hover {
+    background-color: var(--color-button-hover);
+}
+
+.canvas-container {
+    flex: 1;
+    align-self: stretch;
 }
 
 canvas {
-    position: absolute;
+    display: block;
     background: var(--color-canvas-background);
     border: 1px solid var(--color-canvas-border);
-    border-radius: 5px;
-    margin: 20px auto;
-    width: 80%;
-}
-
-/*.modal {*/
-/*    display: none;*/
-/*    position: fixed;*/
-/*    z-index: 1;*/
-/*    left: 0;*/
-/*    top: 0;*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    overflow: auto;*/
-/*    background-color: rgb(0, 0, 0);*/
-/*    background-color: rgba(0, 0, 0, 0.4);*/
-/*}*/
-
-/*.modal-content {*/
-/*    background-color: #fefefe;*/
-/*    margin: 15% auto;*/
-/*    padding: 20px;*/
-/*    border: 1px solid #888;*/
-/*    width: 80%;*/
-/*}*/
-
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+    height: auto;
 }

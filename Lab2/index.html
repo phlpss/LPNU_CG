@@ -7,20 +7,25 @@
 </head>
 
 <body>
-<h1>Bezier Curve</h1>
-<div>
-    <div class="tools">
-        <label>Points:</label>
-        <label for="pointsInput"></label><input id="pointsInput" type="text"/>
-        <button id="drawBtn">Draw</button>
-        <button id="addBtn">Add</button>
-        <button id="clearBtn">Clear</button>
-    </div>
-    <div class="canvas">
+<header>
+    <h1>Bezier Curve Designer</h1>
+</header>
+<div class="container">
+    <aside class="tools">
+        <div class="input-group">
+            <label for="pointsInput">Points:</label>
+            <input id="pointsInput" type="text" placeholder="Enter points (e.g., (1,2), (3,4))"/>
+        </div>
+        <div class="buttons">
+            <button id="drawBtn">Draw</button>
+            <button id="addBtn">Add</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+    </aside>
+    <main class="canvas-container">
         <canvas id="bezierCanvas" resize></canvas>
-    </div>
+    </main>
 </div>
-
 
 <script src="script.js"></script>
 </body>
