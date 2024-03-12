@@ -1,4 +1,3 @@
-<h2>
-  LAB 1
-</h2>
-<img src="https://github.com/phlpss/LPNU_CG/blob/main/KG_lab1/Screenshot%202024-02-19%20130656.png" />
+<h1>LAB 1 </h1>
+
+![image](https://github.com/phlpss/LPNU_CG/assets/112864294/d30ddba7-1e67-46fe-b2d8-2f469ce367b0)
