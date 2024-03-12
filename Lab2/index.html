@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+    <title>Bezier Curve</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js"></script>
+</head>
+
+<body>
+<h1>Bezier Curve</h1>
+<div>
+    <div class="tools">
+        <label>Points:</label>
+        <label for="pointsInput"></label><input id="pointsInput" type="text"/>
+        <button id="drawBtn">Draw</button>
+        <button id="addBtn">Add</button>
+        <button id="clearBtn">Clear</button>
+    </div>
+    <div class="canvas">
+        <canvas id="bezierCanvas" resize></canvas>
+    </div>
+</div>
+
+
+<script src="script.js"></script>
+</body>
+</html>
