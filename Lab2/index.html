@@ -3,6 +3,7 @@
 <head>
     <title>Bezier Curve</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="script.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.15/paper-full.min.js"></script>
 </head>
 
@@ -14,7 +15,18 @@
     <aside class="tools">
         <div class="input-group">
             <label for="pointsInput">Points:</label>
-            <input id="pointsInput" type="text" placeholder="Enter points (e.g., (1,2), (3,4))"/>
+            <input id="pointsInput" type="text" placeholder="e.g., 1,2 3,4 5,6" />
+            <small id="inputHelp" class="form-text text-muted">
+                ..............................................
+            </small>
+        </div>
+        <div>
+            <label for="methodSelect">Drawing Method:</label>
+            <select id="methodSelect">
+                <option value="parametric">Parametric</option>
+                <option value="matrix">Matrix</option>
+            </select>
+            <p></p>
         </div>
         <div class="buttons">
             <button id="drawBtn">Draw</button>
@@ -23,10 +35,9 @@
         </div>
     </aside>
     <main class="canvas-container">
-        <canvas id="bezierCanvas" resize></canvas>
+        <canvas id="bezierCanvas" width="800" height="600"></canvas>
     </main>
 </div>
 
-<script src="script.js"></script>
 </body>
 </html>
