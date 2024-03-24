@@ -172,7 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
         drawAllSquares();
     }
 
-
     function drawAllSquares() {
         drawScreen();
 

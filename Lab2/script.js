@@ -3,7 +3,21 @@ window.onload = function () {
     const ctx = canvas.getContext('2d');
     let points = [];
 
-    drawGrid(ctx);
+    const bgColor = "#FFFFFF";
+    const axisColor = "#121212";
+    const gridColor = "#ccc";
+    const fontColor = "#555";
+
+    const scale = 20;
+    const width = canvas.width;
+    const height = canvas.height;
+    const pixelOrigin = {
+        x: width / 2,
+        y: height / 2
+    };
+
+    // drawGrid(ctx);
+    drawScreen();
 
     document.getElementById('addBtn').addEventListener('click', function () {
         let input = document.getElementById('pointsInput').value;
@@ -14,16 +28,18 @@ window.onload = function () {
         points = [];
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         // clearCanvas(ctx);
-        drawGrid(ctx);
+        drawScreen(ctx);
     });
 
     document.getElementById('drawBtn').addEventListener('click', function () {
         const method = document.getElementById('methodSelect').value;
-        let input = document.getElementById('pointsInput').value;
 
-        // Спочатку перевірка на коректність введення
-        if (!input.match(/^(\d+,\d+\s*)+$/)) {
-            console.error("Invalid point format. Use the format 'x1,y1 x2,y2 ...'");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawScreen();
+
+        let input = document.getElementById('pointsInput').value;
+        if (!input.match(/^(-?\d+,-?\d+\s*)+$/)) {
+            console.error("Invalid point format. Use the format 'x1,y1 x2,y2 ...' ");
             return;
         }
 
@@ -32,32 +48,106 @@ window.onload = function () {
             return {x: parseFloat(x), y: parseFloat(y)};
         });
 
-        console.log(points);
+        for (let i = 0; i < points.length; i++) {
+            points[i].x = (points[i].x * scale) + (width / 2);
+            points[i].y = (height / 2) - (points[i].y * scale);
+        }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        console.log(points);
         if (method === 'parametric') {
             drawBezierParametric(points);
-            // drawBezier(points);
         } else if (method === 'matrix') {
-            drawBezierMatrix(points);
-            // drawBezier(points);
+            // drawBezierMatrix(points);
+            drawBezierCurve(points);
         }
+
     });
 
 
-    function drawGrid(ctx) {
-        const spacing = 30;
-        ctx.strokeStyle = '#e9e9e9';
-        ctx.beginPath();
-        for (let i = spacing; i < canvas.width; i += spacing) {
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, canvas.height);
+    function drawScreen() {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, width, height);
+
+        function drawHorizontalAxis() {
+            ctx.beginPath();
+            ctx.moveTo(0, pixelOrigin.y);
+            ctx.lineTo(width, pixelOrigin.y);
+            ctx.strokeStyle = axisColor;
+            ctx.stroke();
+
+            // Add an arrow to the end of the X axis
+            ctx.beginPath();
+            ctx.moveTo(width - 10, pixelOrigin.y - 5);
+            ctx.lineTo(width, pixelOrigin.y);
+            ctx.lineTo(width - 10, pixelOrigin.y + 5);
+            ctx.fillStyle = axisColor;
+            ctx.fill();
+
+            ctx.fillText('X', width - 20, pixelOrigin.y - 10);
         }
-        for (let j = spacing; j < canvas.height; j += spacing) {
-            ctx.moveTo(0, j);
-            ctx.lineTo(canvas.width, j);
+
+        function drawVerticalAxis() {
+            ctx.beginPath();
+            ctx.moveTo(pixelOrigin.x, 0);
+            ctx.lineTo(pixelOrigin.x, height);
+            ctx.strokeStyle = axisColor;
+            ctx.stroke();
+
+            // Add an arrow to the end of the Y axis
+            ctx.beginPath();
+            ctx.moveTo(pixelOrigin.x - 5, 10);
+            ctx.lineTo(pixelOrigin.x, 0);
+            ctx.lineTo(pixelOrigin.x + 5, 10);
+            ctx.fillStyle = axisColor;
+            ctx.fill();
+
+            ctx.fillText('Y', pixelOrigin.x + 25, 15);
         }
-        ctx.stroke();
+
+        function drawGrid() {
+            ctx.strokeStyle = gridColor;
+            ctx.fillStyle = fontColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Draw horizontal grid lines and labels
+            let start = -Math.floor((height / 2) / scale);
+            let end = Math.ceil((height / 2) / scale);
+            for (let y = start; y <= end; y++) {
+                const py = pixelOrigin.y - y * scale;
+                ctx.beginPath();
+                ctx.moveTo(0, py);
+                ctx.lineTo(width, py);
+                ctx.stroke();
+
+                // Label the units on the Y-axis
+                if (y !== 0) {
+                    ctx.fillText(y.toString(), pixelOrigin.x - 10, py);
+                }
+            }
+
+            // Draw vertical grid lines and labels
+            start = -Math.floor((width / 2) / scale);
+            end = Math.ceil((width / 2) / scale);
+            for (let x = start; x <= end; x++) {
+                const px = pixelOrigin.x + x * scale;
+                ctx.beginPath();
+                ctx.moveTo(px, 0);
+                ctx.lineTo(px, height);
+                ctx.stroke();
+
+                // Label the units on the X-axis
+                if (x !== 0) {
+                    ctx.fillText(x.toString(), px, pixelOrigin.y + 20);
+                }
+            }
+
+            drawHorizontalAxis();
+            drawVerticalAxis();
+        }
+
+        drawGrid();
+        ctx.fillText('0', pixelOrigin.x + 7, pixelOrigin.y - 7);
     }
 
     function drawAndLabelPoints(points) {
@@ -78,10 +168,25 @@ window.onload = function () {
         }
     }
 
+    function drawCharacteristicLine(points) {
+        // Draw the characteristic broken line
+        for (let i = 0; i < points.length - 1; i++) {
+            ctx.beginPath();
+            ctx.moveTo(points[i].x, points[i].y);
+            ctx.lineTo(points[i + 1].x, points[i + 1].y);
+
+            if (i === 0 || i === points.length - 2) {
+                ctx.strokeStyle = '#1875f6';
+            } else {
+                ctx.strokeStyle = '#8f8f8f';
+            }
+            ctx.stroke();
+        }
+    }
+
     function drawBezierParametric(points) {
         console.log("drawBezierParametric() called");
         console.log(points);
-        drawGrid(ctx);
 
         const factorial = (n) => {
             let result = 1;
@@ -109,19 +214,7 @@ window.onload = function () {
         };
 
         // Draw the characteristic broken line
-        for (let i = 0; i < points.length - 1; i++) {
-            ctx.beginPath();
-            ctx.moveTo(points[i].x, points[i].y);
-            ctx.lineTo(points[i + 1].x, points[i + 1].y);
-
-            // First and last segments are tangent, draw them in one color
-            if (i === 0 || i === points.length - 2) {
-                ctx.strokeStyle = '#a27522'; // Color for tangent segments
-            } else {
-                ctx.strokeStyle = 'grey'; // Color for non-tangent segments
-            }
-            ctx.stroke();
-        }
+        drawCharacteristicLine(points);
 
         // Draw the Bézier curve
         ctx.beginPath();
@@ -139,63 +232,80 @@ window.onload = function () {
         drawAndLabelPoints(points);
     }
 
-    function drawBezierMatrix(points) {
-        const n = points.length - 1;
-        const coefMatrix = getCoefMatrix(n);
-
-        const getPointOnBezier = (t) => {
-            let tMatrix = getTMatrix(n, t);
-            return multiplyMatrices(tMatrix, coefMatrix, points);
-        };
-
-        ctx.beginPath();
-        let point = getPointOnBezier(0);
-        ctx.moveTo(point.x, point.y);
-
-        const steps = 1000; // Кількість кроків для точності кривої
-        for (let i = 1; i <= steps; i++) {
-            let t = i / steps;
-            point = getPointOnBezier(t);
-            ctx.lineTo(point.x, point.y);
-        }
-
-        ctx.stroke();
-    }
-
-    function getCoefMatrix(n) {
-        let matrix = [];
-        for (let i = 0; i <= n; i++) {
-            matrix[i] = [];
-            for (let j = 0; j <= n; j++) {
-                matrix[i][j] = j <= n ? binomialCoefficient(n, j) * Math.pow(-1, j + i) * Math.pow(1 - j / n, n) : 0;
-            }
-        }
-        return matrix;
-    }
-
-    function getTMatrix(n, t) {
-        return Array.from({length: n + 1}, (_, i) => Math.pow(t, n - i));
-    }
-
-    function multiplyMatrices(tMatrix, coefMatrix, points) {
-        let result = {x: 0, y: 0};
-        for (let i = 0; i < coefMatrix.length; i++) { // should be < coefMatrix.length
-            let tempX = 0, tempY = 0;
-            for (let j = 0; j < points.length; j++) {
-                tempX += coefMatrix[i][j] * points[j].x;
-                tempY += coefMatrix[i][j] * points[j].y;
-            }
-            result.x += tMatrix[i] * tempX;
-            result.y += tMatrix[i] * tempY;
-        }
-        return result;
-    }
-
-    function binomialCoefficient(n, k) {
-        let result = 1;
-        for (let i = 1; i <= k; i++) {
-            result *= (n + 1 - i) / i;
-        }
-        return result;
-    }
+    // function factorial(n) {
+    //     let result = 1;
+    //     for (let i = 2; i <= n; i++) {
+    //         result *= i;
+    //     }
+    //     return result;
+    // }
+    //
+    // function combination(n, k) {
+    //     return factorial(n) / (factorial(k) * factorial(n - k));
+    // }
+    //
+    // function getCoefMattr(n) {
+    //     let coefMattr = [];
+    //
+    //     for (let i = 0; i <= n; i++) {
+    //         coefMattr[i] = [];
+    //         for (let j = 0; j <= n; j++) {
+    //             coefMattr[i][j] = (j <= i) ? combination(i, j) * Math.pow(-1, i - j) : 0;
+    //         }
+    //     }
+    //
+    //     return coefMattr;
+    // }
+    //
+    // function getTMattr(n, t) {
+    //     let tMattr = [];
+    //     for (let i = 0; i <= n; i++) {
+    //         tMattr.push(Math.pow(t, n - i));
+    //     }
+    //     return tMattr;
+    // }
+    //
+    // function getBPart(xy, n, t, coefMattr) {
+    //     let tMattr = getTMattr(n, t);
+    //     let x = 0, y = 0;
+    //
+    //     for (let i = 0; i <= n; i++) {
+    //         let tempX = 0, tempY = 0;
+    //         for (let j = 0; j <= n; j++) {
+    //             tempX += coefMattr[j][i] * xy[j][0];
+    //             tempY += coefMattr[j][i] * xy[j][1];
+    //         }
+    //         x += tMattr[i] * tempX;
+    //         y += tMattr[i] * tempY;
+    //     }
+    //
+    //     return [x, y];
+    // }
+    //
+    // function drawBezierCurve(points) {
+    //     let n = points.length - 1;
+    //     let coefMattr =  (n);
+    //     console.log("CoeffMatr: ",coefMattr)
+    //     let ts = linspace(0, 1, 1000); // Choose an appropriate number for the resolution
+    //     let path = [];
+    //
+    //     ts.forEach(t => {
+    //         path.push(getBPart(points, n, t, coefMattr));
+    //     });
+    //
+    //     // Begin the path drawing
+    //     ctx.beginPath();
+    //     ctx.moveTo(path[0][0], path[0][1]);
+    //
+    //     for (let i = 1; i < path.length; i++) {
+    //         ctx.lineTo(path[i][0], path[i][1]);
+    //     }
+    //
+    //     ctx.stroke(); // Draw the curve
+    // }
+    //
+    // function linspace(start, end, num) {
+    //     const delta = (end - start) / (num - 1);
+    //     return Array.from({length: num}, (v, i) => start + i * delta);
+    // }
 };

@@ -13,26 +13,70 @@
 </header>
 <div class="container">
     <aside class="tools">
-        <div class="input-group">
-            <label for="pointsInput">Points:</label>
-            <input id="pointsInput" type="text" placeholder="e.g., 1,2 3,4 5,6" />
-            <small id="inputHelp" class="form-text text-muted">
-                ..............................................
-            </small>
-        </div>
         <div>
             <label for="methodSelect">Drawing Method:</label>
             <select id="methodSelect">
+                <option value="" disabled selected>Select a method</option>
                 <option value="parametric">Parametric</option>
                 <option value="matrix">Matrix</option>
             </select>
-            <p></p>
+
+            <label for="pointsInput">Points:</label>
+            <input id="pointsInput" type="text" placeholder="e.g., 1,2 3,4 5,6" required/>
+            <small id="inputHelp" class="form-text text-muted"> </small>
+
+            <div class="input-group" id="matrixInput">
+                <label>Enter number of points and gap:</label>
+                <div class="row">
+                    <label for="pointCount"></label>
+                    <input class="element" type="number" id="pointCount" min="1">
+
+                    <label for="rangeStart"></label>
+                    <input class="element" type="number" id="rangeStart">
+
+                    <label for="rangeEnd"></label>
+                    <input class="element" type="number" id="rangeEnd">
+
+                    <button class="confirm" id="setGap"><img src='assets/tick_icon.svg' width="40" height="40"
+                                                             alt="Tick Icon"></button>
+                </div>
+
+                <div class="row">
+                    <label for="matrixColumn"></label>
+                    <input type="number" id="matrixColumn" min="0" placeholder="Matrix Column">
+
+                    <button class="confirm" id="setCol"><img src='assets/tick_icon.svg' width="40" height="40"
+                                                             alt="Tick Icon"></button>
+                </div>
+            </div>
+
         </div>
         <div class="buttons">
             <button id="drawBtn">Draw</button>
             <button id="addBtn">Add</button>
             <button id="clearBtn">Clear</button>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const methodSelect = document.getElementById('methodSelect');
+                const parametricInput = document.getElementById('parametricInput');
+                const matrixInput = document.getElementById('matrixInput');
+
+                // Function to hide or show inputs based on the selected method
+                function handleMethodChange() {
+                    const method = methodSelect.value;
+                    matrixInput.style.display = method === 'matrix' ? 'block' : 'none';
+                }
+
+                // Event listener for the method selection change
+                methodSelect.addEventListener('change', handleMethodChange);
+
+                // Initialize with the correct display state
+                handleMethodChange();
+            });
+        </script>
+
     </aside>
     <main class="canvas-container">
         <canvas id="bezierCanvas" width="800" height="600"></canvas>

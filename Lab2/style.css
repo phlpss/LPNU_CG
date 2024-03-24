@@ -71,7 +71,7 @@ input[type="number"]{
     box-sizing: border-box;
 }
 
-.buttons button {
+button {
     width: 100%;
     padding: 10px;
     border: none;
@@ -84,8 +84,17 @@ input[type="number"]{
     transition: background-color 0.3s;
 }
 
-.buttons button:hover {
+button:hover {
     background-color: var(--color-button-hover);
+}
+
+.confirm {
+    background: none;
+    padding: 0;
+    align-self: flex-end;
+}
+.confirm:hover {
+    background: none;
 }
 
 .canvas-container {
@@ -102,4 +111,16 @@ canvas {
     border-radius: 4px;
     width: 100%;
     height: auto;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    max-width: 230px;
+
+    justify-content: space-between;
+}
+
+.row .element {
+    margin-right: 3px;
 }
