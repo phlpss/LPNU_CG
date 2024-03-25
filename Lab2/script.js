@@ -37,7 +37,8 @@ window.onload = function () {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawScreen();
 
-        let input = document.getElementById('pointsInput').value;
+        // let input = document.getElementById('pointsInput').value;
+        let input = "3,3 5,5 -5,10 -10,1 -8,-8 -3,-8";
         if (!input.match(/^(-?\d+,-?\d+\s*)+$/)) {
             console.error("Invalid point format. Use the format 'x1,y1 x2,y2 ...' ");
             return;
@@ -53,14 +54,11 @@ window.onload = function () {
             points[i].y = (height / 2) - (points[i].y * scale);
         }
 
-        console.log(points);
         if (method === 'parametric') {
             drawBezierParametric(points);
         } else if (method === 'matrix') {
-            // drawBezierMatrix(points);
-            drawBezierCurve(points);
+            drawBezierMatrix(points);
         }
-
     });
 
 
@@ -150,7 +148,7 @@ window.onload = function () {
         ctx.fillText('0', pixelOrigin.x + 7, pixelOrigin.y - 7);
     }
 
-    function drawAndLabelPoints(points) {
+    function drawLabelAndPoints(points) {
         const pointRadius = 3; // Size of the point on the canvas
         const labelOffset = {x: 5, y: 5}; // Offset for the label from the point
 
@@ -185,8 +183,6 @@ window.onload = function () {
     }
 
     function drawBezierParametric(points) {
-        console.log("drawBezierParametric() called");
-        console.log(points);
 
         const factorial = (n) => {
             let result = 1;
@@ -229,83 +225,95 @@ window.onload = function () {
         ctx.strokeStyle = "red";
         ctx.stroke();
 
-        drawAndLabelPoints(points);
+        drawLabelAndPoints(points);
     }
 
-    // function factorial(n) {
-    //     let result = 1;
-    //     for (let i = 2; i <= n; i++) {
-    //         result *= i;
-    //     }
-    //     return result;
-    // }
-    //
-    // function combination(n, k) {
-    //     return factorial(n) / (factorial(k) * factorial(n - k));
-    // }
-    //
-    // function getCoefMattr(n) {
-    //     let coefMattr = [];
-    //
-    //     for (let i = 0; i <= n; i++) {
-    //         coefMattr[i] = [];
-    //         for (let j = 0; j <= n; j++) {
-    //             coefMattr[i][j] = (j <= i) ? combination(i, j) * Math.pow(-1, i - j) : 0;
-    //         }
-    //     }
-    //
-    //     return coefMattr;
-    // }
-    //
-    // function getTMattr(n, t) {
-    //     let tMattr = [];
-    //     for (let i = 0; i <= n; i++) {
-    //         tMattr.push(Math.pow(t, n - i));
-    //     }
-    //     return tMattr;
-    // }
-    //
-    // function getBPart(xy, n, t, coefMattr) {
-    //     let tMattr = getTMattr(n, t);
-    //     let x = 0, y = 0;
-    //
-    //     for (let i = 0; i <= n; i++) {
-    //         let tempX = 0, tempY = 0;
-    //         for (let j = 0; j <= n; j++) {
-    //             tempX += coefMattr[j][i] * xy[j][0];
-    //             tempY += coefMattr[j][i] * xy[j][1];
-    //         }
-    //         x += tMattr[i] * tempX;
-    //         y += tMattr[i] * tempY;
-    //     }
-    //
-    //     return [x, y];
-    // }
-    //
-    // function drawBezierCurve(points) {
-    //     let n = points.length - 1;
-    //     let coefMattr =  (n);
-    //     console.log("CoeffMatr: ",coefMattr)
-    //     let ts = linspace(0, 1, 1000); // Choose an appropriate number for the resolution
-    //     let path = [];
-    //
-    //     ts.forEach(t => {
-    //         path.push(getBPart(points, n, t, coefMattr));
-    //     });
-    //
-    //     // Begin the path drawing
-    //     ctx.beginPath();
-    //     ctx.moveTo(path[0][0], path[0][1]);
-    //
-    //     for (let i = 1; i < path.length; i++) {
-    //         ctx.lineTo(path[i][0], path[i][1]);
-    //     }
-    //
-    //     ctx.stroke(); // Draw the curve
-    // }
-    //
-    // function linspace(start, end, num) {
-    //     const delta = (end - start) / (num - 1);
-    //     return Array.from({length: num}, (v, i) => start + i * delta);
-    // }
+    function drawBezierMatrix(points) {
+
+        drawCharacteristicLine(points, ctx);
+
+        // Draw the Bézier curve using the matrix method
+        ctx.beginPath();
+        let point = calculateBezierPoint(0, points);
+        ctx.moveTo(point.x, point.y);
+
+        // The granularity of the curve; smaller increments will result in a smoother curve
+        for (let t = 0; t <= 1; t += 0.01) {
+            point = calculateBezierPoint(t, points);
+            ctx.lineTo(point.x, point.y);
+        }
+
+        // Final point to ensure the curve is fully drawn to t=1
+        point = calculateBezierPoint(1, points);
+        ctx.lineTo(point.x, point.y);
+
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+
+        drawLabelAndPoints(points, ctx);
+    }
+
+    function calculateBezierPoint(t, points) {
+        const n = points.length - 1;
+
+        const A = getBezierMatrix(points);
+        const T = [];
+        const P = [];
+
+        // Create the T vector (T = [t^i])
+        for (let i = 0; i <= n; i++) {
+            T.push(Math.pow(t, i));
+        }
+
+        // Create the P vector/matrix
+        for (let i = 0; i <= n; i++) {
+            P.push([points[i].x, points[i].y]);
+        }
+
+        // First multiply T and A
+        const TA = new Array(n + 1).fill(0);
+        for (let i = 0; i <= n; i++) {
+            for (let j = 0; j <= n; j++) {
+                TA[i] += T[j] * A[j][i];
+            }
+        }
+
+        // Then multiply the result by P
+        const BZ_t = {
+            x: TA.reduce((acc, ta_i, i) => acc + ta_i * P[i][0], 0),
+            y: TA.reduce((acc, ta_i, i) => acc + ta_i * P[i][1], 0)
+        };
+
+        return BZ_t;
+    }
+
+    function factorialize(num) {
+        if (num < 0) return NaN;
+        let result = 1;
+        for (let i = 2; i <= num; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    function binomial(n, k) {
+        if (k < 0 || k > n) return 0;
+        return factorialize(n) / (factorialize(k) * factorialize(n - k));
+    }
+
+    function getBezierMatrix(points) {
+        const n = points.length - 1;
+        const bezierMatrix = new Array(n + 1);
+
+        for (let i = 0; i <= n; i++) {
+            bezierMatrix[i] = new Array(n + 1).fill(0);
+            for (let j = 0; j <= i; j++) { // Note that j only goes up to i
+                bezierMatrix[i][j] = binomial(n, j) *
+                    binomial(n - j, i - j) *
+                    Math.pow(-1, i - j);
+            }
+        }
+        return bezierMatrix;
+    }
+
 };
