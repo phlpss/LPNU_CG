@@ -183,17 +183,8 @@ window.onload = function () {
     }
 
     function drawBezierParametric(points) {
-
-        const factorial = (n) => {
-            let result = 1;
-            for (let i = 2; i <= n; i++) {
-                result *= i;
-            }
-            return result;
-        };
-
         const bernstein = (n, i, t) => {
-            return factorial(n) / (factorial(i) * factorial(n - i)) * Math.pow(t, i) * Math.pow(1 - t, n - i);
+            return factorialize(n) / (factorialize(i) * factorialize(n - i)) * Math.pow(t, i) * Math.pow(1 - t, n - i);
         };
 
         const getPointOnBezier = (t) => {
@@ -209,9 +200,6 @@ window.onload = function () {
             return {x, y};
         };
 
-        // Draw the characteristic broken line
-        drawCharacteristicLine(points);
-
         // Draw the Bézier curve
         ctx.beginPath();
         let point = getPointOnBezier(0);
@@ -225,66 +213,62 @@ window.onload = function () {
         ctx.strokeStyle = "red";
         ctx.stroke();
 
+        drawCharacteristicLine(points);
         drawLabelAndPoints(points);
     }
 
     function drawBezierMatrix(points) {
-
-        drawCharacteristicLine(points, ctx);
-
-        // Draw the Bézier curve using the matrix method
         ctx.beginPath();
         let point = calculateBezierPoint(0, points);
         ctx.moveTo(point.x, point.y);
 
-        // The granularity of the curve; smaller increments will result in a smoother curve
         for (let t = 0; t <= 1; t += 0.01) {
             point = calculateBezierPoint(t, points);
             ctx.lineTo(point.x, point.y);
         }
 
-        // Final point to ensure the curve is fully drawn to t=1
         point = calculateBezierPoint(1, points);
         ctx.lineTo(point.x, point.y);
 
         ctx.strokeStyle = "red";
         ctx.stroke();
 
-        drawLabelAndPoints(points, ctx);
+        drawCharacteristicLine(points);
+        drawLabelAndPoints(points);
     }
 
     function calculateBezierPoint(t, points) {
         const n = points.length - 1;
 
-        const A = getBezierMatrix(points);
-        const T = [];
-        const P = [];
+        const A = calculateCreatorMatrix(points);
+        const T = Array.from({length: n + 1}, (_, i) => Math.pow(t, i));
+        const P = points.map(point => [point.x, point.y]);
 
-        // Create the T vector (T = [t^i])
-        for (let i = 0; i <= n; i++) {
-            T.push(Math.pow(t, i));
-        }
+        // T * A
+        const TA = T.map((_, i) =>
+            T.reduce((acc, t_j, j) => acc + t_j * A[j][i], 0)
+        );
 
-        // Create the P vector/matrix
-        for (let i = 0; i <= n; i++) {
-            P.push([points[i].x, points[i].y]);
-        }
-
-        // First multiply T and A
-        const TA = new Array(n + 1).fill(0);
-        for (let i = 0; i <= n; i++) {
-            for (let j = 0; j <= n; j++) {
-                TA[i] += T[j] * A[j][i];
-            }
-        }
-
-        // Then multiply the result by P
-        const BZ_t = {
+        // TA * P
+        return {
             x: TA.reduce((acc, ta_i, i) => acc + ta_i * P[i][0], 0),
             y: TA.reduce((acc, ta_i, i) => acc + ta_i * P[i][1], 0)
         };
+    }
 
-        return BZ_t;
+    function calculateCreatorMatrix(points) {
+        const n = points.length - 1;
+        const bezierMatrix = new Array(n + 1);
+
+        for (let i = 0; i <= n; i++) {
+            bezierMatrix[i] = new Array(n + 1).fill(0);
+            for (let j = 0; j <= i; j++) {
+                bezierMatrix[i][j] = binomial(n, j) *
+                    binomial(n - j, i - j) *
+                    Math.pow(-1, i - j);
+            }
+        }
+        return bezierMatrix;
     }
 
     function factorialize(num) {
@@ -300,20 +284,4 @@ window.onload = function () {
         if (k < 0 || k > n) return 0;
         return factorialize(n) / (factorialize(k) * factorialize(n - k));
     }
-
-    function getBezierMatrix(points) {
-        const n = points.length - 1;
-        const bezierMatrix = new Array(n + 1);
-
-        for (let i = 0; i <= n; i++) {
-            bezierMatrix[i] = new Array(n + 1).fill(0);
-            for (let j = 0; j <= i; j++) { // Note that j only goes up to i
-                bezierMatrix[i][j] = binomial(n, j) *
-                    binomial(n - j, i - j) *
-                    Math.pow(-1, i - j);
-            }
-        }
-        return bezierMatrix;
-    }
-
 };
