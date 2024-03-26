@@ -11,58 +11,112 @@ window.onload = function () {
     const scale = 20;
     const width = canvas.width;
     const height = canvas.height;
+
     const pixelOrigin = {
         x: width / 2,
         y: height / 2
     };
 
-    // drawGrid(ctx);
     drawScreen();
 
     document.getElementById('addBtn').addEventListener('click', function () {
-        let input = document.getElementById('pointsInput').value;
-        points.push({input});
+        const input = document.getElementById('pointsInput').value;
+        const newPoint = validateAndTransformPoints(input);
+        points = points.concat(newPoint);
+
+        updateCanvas();
+    });
+
+    document.getElementById('drawBtn').addEventListener('click', function () {
+        const input = document.getElementById('pointsInput').value;
+        points = validateAndTransformPoints(input);
+
+        updateCanvas();
     });
 
     document.getElementById('clearBtn').addEventListener('click', function () {
         points = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // clearCanvas(ctx);
         drawScreen(ctx);
     });
 
-    document.getElementById('drawBtn').addEventListener('click', function () {
+
+    function drawPoint(ctx, point) {
+        const radius = 3; // Size of the point
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'red';
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    document.getElementById('setGap').addEventListener('click', function () {
+        const n = parseInt(document.getElementById('pointCount').value);
+        const a = parseFloat(document.getElementById('rangeStart').value);
+        const b = parseFloat(document.getElementById('rangeEnd').value);
+
+        const gapPoints = calculateGapPoints(n, a, b, points);
+
+        // Draw each point on the canvas
+        gapPoints.forEach(point => {
+            const transformedPoint = transformPoint(point, scale, pixelOrigin);
+            drawPoint(ctx, transformedPoint);
+        });
+    });
+
+    function calculateGapPoints(n, a, b, points) {
+        let gapPoints = [];
+        for (let i = 0; i < n; i++) {
+            let t = a + (i / (n - 1)) * (b - a); // Evenly spaced t values in [a, b]
+            gapPoints.push(calculateBezierPoint(t, points));
+        }
+        return gapPoints;
+    }
+    function transformPoint(point, scale, origin) {
+        return {
+            x: origin.x + point.x * scale,
+            y: origin.y - point.y * scale
+        };
+    }
+
+
+
+    function updateCanvas() {
         const method = document.getElementById('methodSelect').value;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawScreen();
-
-        // let input = document.getElementById('pointsInput').value;
-        let input = "3,3 5,5 -5,10 -10,1 -8,-8 -3,-8";
-        if (!input.match(/^(-?\d+,-?\d+\s*)+$/)) {
-            console.error("Invalid point format. Use the format 'x1,y1 x2,y2 ...' ");
-            return;
-        }
-
-        let points = input.split(' ').map(pair => {
-            const [x, y] = pair.split(',');
-            return {x: parseFloat(x), y: parseFloat(y)};
-        });
-
-        for (let i = 0; i < points.length; i++) {
-            points[i].x = (points[i].x * scale) + (width / 2);
-            points[i].y = (height / 2) - (points[i].y * scale);
-        }
+        drawCharacteristicLine(points);
+        drawLabelAndPoints(points);
 
         if (method === 'parametric') {
             drawBezierParametric(points);
         } else if (method === 'matrix') {
             drawBezierMatrix(points);
         }
-    });
+    }
 
+    function validateAndTransformPoints(inputPoints) {
+        if (!inputPoints.match(/^(-?\d+,-?\d+\s*)+$/)) {
+            console.error("Invalid point format. Use the format 'x1,y1 x2,y2 ...' ");
+            return;
+        }
+
+        let result = inputPoints.split(' ').map(pair => {
+            const [x, y] = pair.split(',');
+            return {x: parseFloat(x), y: parseFloat(y)};
+        });
+
+        for (let i = 0; i < result.length; i++) {
+            result[i].x = (result[i].x * scale) + (width / 2);
+            result[i].y = (height / 2) - (result[i].y * scale);
+        }
+
+        return result;
+    }
 
     function drawScreen() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         ctx.fillStyle = bgColor;
         ctx.fillRect(0, 0, width, height);
 
@@ -212,9 +266,6 @@ window.onload = function () {
 
         ctx.strokeStyle = "red";
         ctx.stroke();
-
-        drawCharacteristicLine(points);
-        drawLabelAndPoints(points);
     }
 
     function drawBezierMatrix(points) {
@@ -232,9 +283,6 @@ window.onload = function () {
 
         ctx.strokeStyle = "red";
         ctx.stroke();
-
-        drawCharacteristicLine(points);
-        drawLabelAndPoints(points);
     }
 
     function calculateBezierPoint(t, points) {
