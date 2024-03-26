@@ -1,7 +1,7 @@
 window.onload = function () {
     const canvas = document.getElementById('bezierCanvas');
     const ctx = canvas.getContext('2d');
-    let points = [];
+    let points = [], matrixBezierPoints = [];
 
     const bgColor = "#FFFFFF";
     const axisColor = "#121212";
@@ -39,46 +39,82 @@ window.onload = function () {
         drawScreen(ctx);
     });
 
-
-    function drawPoint(ctx, point) {
-        const radius = 3; // Size of the point
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'red';
-        ctx.fill();
-        ctx.stroke();
-    }
-
     document.getElementById('setGap').addEventListener('click', function () {
         const n = parseInt(document.getElementById('pointCount').value);
         const a = parseFloat(document.getElementById('rangeStart').value);
         const b = parseFloat(document.getElementById('rangeEnd').value);
 
-        const gapPoints = calculateGapPoints(n, a, b, points);
+        const gapPoints = getEquidistantPointsOnCurve(n, a, b);
 
-        // Draw each point on the canvas
-        gapPoints.forEach(point => {
-            const transformedPoint = transformPoint(point, scale, pixelOrigin);
-            drawPoint(ctx, transformedPoint);
-        });
+        drawPoints(gapPoints);
     });
 
-    function calculateGapPoints(n, a, b, points) {
-        let gapPoints = [];
-        for (let i = 0; i < n; i++) {
-            let t = a + (i / (n - 1)) * (b - a); // Evenly spaced t values in [a, b]
-            gapPoints.push(calculateBezierPoint(t, points));
+    document.getElementById('setCol').addEventListener('click', function () {
+        const matrixColumn = parseInt(document.getElementById('matrixColumn').value);
+        const bezierMatrix = calculateCreatorMatrix(points);
+
+        if (matrixColumn >= 0 && matrixColumn < bezierMatrix.length) {
+            const columnToShow = bezierMatrix.map(row => row[matrixColumn]).reverse();
+            console.log(columnToShow);
+            displayCuteMessage(columnToShow.join(', '));
+        } else {
+            displayCuteMessage("Matrix column out of range.");
         }
-        return gapPoints;
-    }
-    function transformPoint(point, scale, origin) {
-        return {
-            x: origin.x + point.x * scale,
-            y: origin.y - point.y * scale
-        };
+    });
+
+    function displayCuteMessage(message) {
+        const modal = document.getElementById("cuteModal");
+        const closeModalButton = document.querySelector(".close-button");
+        const modalMessage = document.getElementById("modal-message");
+
+        modalMessage.innerHTML = message;
+        modal.style.display = "block";
+
+        closeModalButton.addEventListener('click', () => modal.style.display = "none");
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
     }
 
+    function getEquidistantPointsOnCurve(n, a, b) {
+        if (!matrixBezierPoints || matrixBezierPoints.length === 0) {
+            console.log("matrixBezierPoints is empty or undefined");
+            return [];
+        }
 
+        a = (a * scale) + (width / 2);
+        b = (b * scale) + (width / 2);
+
+        // Determine the matrixBezierPoints subclass that falls within the range [a, b]
+        let segmentPoints = matrixBezierPoints.filter(p => p.x >= a && p.x <= b);
+
+        // Calculate lengths between adjacent points
+        let lengths = [];
+        for (let i = 1; i < segmentPoints.length; i++) {
+            let dx = segmentPoints[i].x - segmentPoints[i - 1].x;
+            let dy = segmentPoints[i].y - segmentPoints[i - 1].y;
+            lengths.push(Math.sqrt(dx * dx + dy * dy));
+        }
+
+        let totalLength = lengths.reduce((acc, length) => acc + length, 0);
+        let segmentLength = totalLength / (n - 1);
+
+        let equidistantPoints = [segmentPoints[0]];
+        let accumulatedLength = 0;
+        let segmentAccumulatedLength = segmentLength;
+
+        for (let i = 0; i < lengths.length; i++) {
+            accumulatedLength += lengths[i];
+            while (accumulatedLength >= segmentAccumulatedLength && equidistantPoints.length < n) {
+                segmentAccumulatedLength += segmentLength;
+                equidistantPoints.push(segmentPoints[i]);
+            }
+        }
+        console.log(equidistantPoints);
+        return equidistantPoints;
+    }
 
     function updateCanvas() {
         const method = document.getElementById('methodSelect').value;
@@ -110,7 +146,6 @@ window.onload = function () {
             result[i].x = (result[i].x * scale) + (width / 2);
             result[i].y = (height / 2) - (result[i].y * scale);
         }
-
         return result;
     }
 
@@ -203,20 +238,31 @@ window.onload = function () {
     }
 
     function drawLabelAndPoints(points) {
-        const pointRadius = 3; // Size of the point on the canvas
+        const pointRadius = 3;
         const labelOffset = {x: 5, y: 5}; // Offset for the label from the point
 
         for (let i = 0; i < points.length; i++) {
             // Draw point
             ctx.beginPath();
             ctx.arc(points[i].x, points[i].y, pointRadius, 0, 2 * Math.PI);
-            ctx.fillStyle = 'black'; // Color for points
+            ctx.fillStyle = 'black';
             ctx.fill();
 
             // Label point
             ctx.font = '12px Arial';
             // ctx.fillStyle = 'black';
             ctx.fillText(`P${i}`, points[i].x + labelOffset.x, points[i].y + labelOffset.y);
+        }
+    }
+
+    function drawPoints(points) {
+        const pointRadius = 3;
+
+        for (let i = 0; i < points.length; i++) {
+            ctx.beginPath();
+            ctx.arc(points[i].x, points[i].y, pointRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'green';
+            ctx.fill();
         }
     }
 
@@ -269,16 +315,21 @@ window.onload = function () {
     }
 
     function drawBezierMatrix(points) {
+        matrixBezierPoints = [];
+
         ctx.beginPath();
         let point = calculateBezierPoint(0, points);
+        matrixBezierPoints.push(point);
         ctx.moveTo(point.x, point.y);
 
         for (let t = 0; t <= 1; t += 0.01) {
             point = calculateBezierPoint(t, points);
+            matrixBezierPoints.push(point);
             ctx.lineTo(point.x, point.y);
         }
 
         point = calculateBezierPoint(1, points);
+        matrixBezierPoints.push(point);
         ctx.lineTo(point.x, point.y);
 
         ctx.strokeStyle = "red";

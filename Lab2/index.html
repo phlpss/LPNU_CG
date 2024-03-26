@@ -57,6 +57,16 @@
             <button id="clearBtn">Clear</button>
         </div>
 
+        <div id="cuteModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <div class="modal-top-line"></div>
+                <p id="modal-message" class="modal-message"></p>
+                <div class="modal-bottom-line"></div>
+            </div>
+        </div>
+
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const methodSelect = document.getElementById('methodSelect');
@@ -69,10 +79,7 @@
                     matrixInput.style.display = method === 'matrix' ? 'block' : 'none';
                 }
 
-                // Event listener for the method selection change
                 methodSelect.addEventListener('change', handleMethodChange);
-
-                // Initialize with the correct display state
                 handleMethodChange();
             });
         </script>

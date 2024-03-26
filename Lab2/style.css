@@ -5,8 +5,9 @@
     --color-button: #5a7662;
     --color-button-hover: #67816e;
     --color-canvas-background: #fff;
-    --color-canvas-border: #ccc;
-    --test: #a29322;
+    --color-border: #ccc;
+    --color-modal-border: #ccc;
+    --color-close-button: #ff6b6b;
 }
 
 body, input, button {
@@ -48,7 +49,7 @@ h1 {
     margin-right: 20px;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .input-group {
@@ -62,7 +63,7 @@ label {
 
 select,
 input[type="text"],
-input[type="number"]{
+input[type="number"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
@@ -93,6 +94,7 @@ button:hover {
     padding: 0;
     align-self: flex-end;
 }
+
 .confirm:hover {
     background: none;
 }
@@ -107,7 +109,7 @@ button:hover {
 canvas {
     display: block;
     background: var(--color-canvas-background);
-    border: 1px solid var(--color-canvas-border);
+    border: 1px solid var(--color-border);
     border-radius: 4px;
     width: 100%;
     height: auto;
@@ -123,4 +125,54 @@ canvas {
 
 .row .element {
     margin-right: 3px;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--color-background);
+    margin: auto;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    width: 50%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.close-button {
+    color: var(--color-close-button);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: #d32f2f;
+}
+
+.modal-top-line, .modal-bottom-line {
+    height: 1px;
+    background-color: #ccc;
+    width: 100%; /* ensures the line stretches across the width */
+    margin-top: 10px; /* Adjust spacing above the line */
+    margin-bottom: 2px; /* Adjust spacing below the line */
+}
+
+.modal-message {
+    text-align: center;
+    font-size: 16px;
+    color: var(--color-text);
 }
