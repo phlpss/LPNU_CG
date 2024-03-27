@@ -52,11 +52,18 @@ window.onload = function () {
     document.getElementById('setCol').addEventListener('click', function () {
         const matrixColumn = parseInt(document.getElementById('matrixColumn').value);
         const bezierMatrix = calculateCreatorMatrix(points);
+        // Function to count zeros in the matrix
+        function countZeros(matrix) {
+            return matrix.reduce((count, row) =>
+                count + row.filter(element => element === 0).length, 0);
+        }
+
+        const zeroCount = countZeros(bezierMatrix);
 
         if (matrixColumn >= 0 && matrixColumn < bezierMatrix.length) {
             const columnToShow = bezierMatrix.map(row => row[matrixColumn]).reverse();
             console.log(columnToShow);
-            displayCuteMessage(columnToShow.join(', '));
+            displayCuteMessage(`${matrixColumn} Column in matrix: ${columnToShow.join(', ')}\n\nNumber of '0' in matrix: ${zeroCount}`);
         } else {
             displayCuteMessage("Matrix column out of range.");
         }
