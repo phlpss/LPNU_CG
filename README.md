@@ -4,4 +4,4 @@
 
 <h1>LAB 2 (uncompleted) </h1>
 
-![image](https://github.com/phlpss/LPNU_CG/assets/112864294/7948e5bc-19f5-4dc5-8250-80985ef57f90)
+![image](https://github.com/phlpss/LPNU_CG/assets/112864294/d3aa9ddc-ae72-4b38-ba52-0d7bc773eae1)
