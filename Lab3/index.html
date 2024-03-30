@@ -2,15 +2,52 @@
 <html lang="en">
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>
+    <link rel="stylesheet" type="text/css" href="../style.css">
     <link rel="stylesheet" type="text/css" href="style.css">
     <meta charset="utf-8"/>
-    <title>Fractals</title>
-
+    <title>Fractal Designer</title>
 </head>
 <body>
-<main class="canvas-container">
-    <canvas id="canvas" width="600" height="600"></canvas>
-</main>
+<header>
+    <h1>Fractal Designer</h1>
+</header>
+<div class="content">
+    <div class="tools">
+        <div class="draw-button">
+            <button id="drawTriangleButton"><img width="30" height="30" src="https://img.icons8.com/ios-glyphs/30/trine-120.png" alt="trine-120"/></button>
+            <button id="drawSquareButton"><img width="30" height="30"
+                                               src="https://img.icons8.com/ios-glyphs/30/square-90.png"
+                                               alt="square-90"/></button>
+            <button id="drawAlgebraicButton"><img width="30" height="30"
+                                                  src="https://img.icons8.com/material-rounded/24/filled-star.png"
+                                                  alt="filled-star"/></button>
+            <!--            ch (z)+с
+            -->
+        </div>
+
+        <label>Depth: <input type="range" id="depthSlider" min="1" max="7" value="5"></label>
+        <label>Zoom: <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1"></label>
+        <label>Color: <input type="color" id="colorPicker" value="#ff9797"></label>
+        <button id="saveButton">Save Image</button>
+    </div>
+    <div id="myCanvasWrapper"> <!-- This div will act as the parent to the canvas -->
+        <!-- The canvas will be inserted here by p5.js -->
+    </div>
+</div>
 <script src="sketch.js"></script>
 </body>
 </html>
+
+
+<!--Написати програму для візуалізації фракталів та створити з її допомогою
+галерею фракталів.
+Програма повинна відповідати таким вимогам:
+1) Універсальність алгоритмів побудови фракталів*.
+2) Масштабування зображень алгебраїчних фракталів.
+3) Збереження фрактальних зображень у файлах.
+4) Зручний інтерфейс користувача.
+* Примітка. Для забезпечення універсальності алгоритмів побудови
+фракталів визначити необхідні вхідні дані для введення користувачем. Зокрема,
+вхідні дані для алгебраїчних фракталів – константа (с), умова приналежності до
+множини атрактора, колірна схема тощо; для інших фракталів – кількість
+ітерацій, початок/центр генерування, крок тощо. -->

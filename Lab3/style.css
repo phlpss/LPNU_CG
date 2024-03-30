@@ -1,4 +1,29 @@
-body {
-    background-color: #dddddd;
-    text-align: center;
+.content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 20px;
+    justify-content: center;
+    gap: 20px;
+}
+
+.tools > *:not(:first-child) {
+    margin-top: 15px;
+}
+
+.draw-button {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.draw-button > * {
+    background: none;
+    color: #333;
+    padding: 0;
+    align-self: flex-end;
+}
+
+.draw-button:hover {
+    background: none;
 }
