@@ -27,8 +27,10 @@
 
         <label>Depth: <input type="range" id="depthSlider" min="1" max="7" value="5"></label>
         <label>Zoom: <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1"></label>
+        <label>X Offset: <input type="range" id="xOffsetSlider" min="-300" max="300" value="0"></label>
+        <label>Y Offset: <input type="range" id="yOffsetSlider" min="-300" max="300" value="0"></label>
         <label>Color: <input type="color" id="colorPicker" value="#ff9797"></label>
-        <button id="saveButton">Save Image</button>
+        <button onclick="saveCanvas('fractal', 'png')">Save Image</button>
     </div>
     <div id="myCanvasWrapper"> <!-- This div will act as the parent to the canvas -->
         <!-- The canvas will be inserted here by p5.js -->

@@ -1,4 +1,4 @@
-let depthSlider, colorPicker, zoomSlider;
+let depthSlider, colorPicker, zoomSlider, xOffsetSlider, yOffsetSlider;
 let shapeToDraw = 'triangle'; // Default shape
 
 
@@ -8,6 +8,8 @@ function setup() {
     depthSlider = select('#depthSlider');
     colorPicker = select('#colorPicker');
     zoomSlider = select('#zoomSlider');
+    xOffsetSlider = select('#xOffsetSlider');
+    yOffsetSlider = select('#yOffsetSlider');
 
     // Adding listeners
     let drawTriangleButton = select('#drawTriangleButton');
@@ -22,21 +24,23 @@ function draw() {
     let depth = depthSlider.value();
     let color = colorPicker.value();
     let zoom = zoomSlider.value();
+    let xOffset = xOffsetSlider.value();
+    let yOffset = yOffsetSlider.value();
 
-    // Apply zoom by scaling the canvas
     push();
-    translate(width / 2, height / 2); // Move to center of canvas
-    scale(zoom); // Scale the drawing
-    translate(-width / 2, -height / 2); // Move back to top left corner
+    translate(width / 2 + xOffset, height / 2 + yOffset); // Adjust translation with x and y offsets
+    scale(zoom);
+    translate(-width / 2, -height / 2);
 
-    // drawSeirpinskiTriangle(depth, 600, color);
     if (shapeToDraw === 'triangle') {
         drawSeirpinskiTriangle(depth, 600, color);
     } else if (shapeToDraw === 'square') {
         drawSierpinskiSquare(depth, 600, 0, 0, color);
     }
+
     pop();
 }
+
 
 function drawSeirpinskiTriangle(depth, size, color) {
     if (depth === 1) {
