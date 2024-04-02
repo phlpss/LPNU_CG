@@ -37,16 +37,19 @@ function setup() {
 
 function draw() {
     clear();
+    resetMatrix();
+
     let depth = depthSlider.value();
     let color = colorPicker.value();
     let zoom = zoomSlider.value();
     let xOffset = xOffsetSlider.value();
     let yOffset = yOffsetSlider.value();
 
+    // Apply translation and scaling to zoom and move the fractal
     push();
     translate(width / 2, height / 2);
     scale(zoom);
-    translate(-width / 2 + xOffset, -height / 2 + yOffset);
+    translate(-width / 2 - xOffset, -height / 2 - yOffset);
 
     if (shapeToDraw === 'triangle') {
         drawSeirpinskiTriangle(depth, 600, color);
