@@ -32,7 +32,6 @@ function setup() {
         shapeToDraw = 'algebraic';
         customC = parseComplex(cInput);
     });
-
 }
 
 function draw() {
@@ -57,6 +56,7 @@ function draw() {
         drawSierpinskiSquare(depth, 600, 0, 0, color);
     } else if (shapeToDraw === 'algebraic') {
         drawAlgebraicFractal(depth, customC, zoom, xOffset, yOffset, color);
+        // drawJuliaSet(-0.8, 0.156, zoom, xOffset, yOffset, color);
     }
     pop();
 }
@@ -123,13 +123,23 @@ class Complex {
         // Implement the hyperbolic cosine for complex numbers
         let re = Math.cosh(this.re) * Math.cos(this.im);
         let im = Math.sinh(this.re) * Math.sin(this.im);
+
         return new Complex(re, im);
+    }
+
+    square() {
+        return new Complex(this.re * this.re - this.im * this.im, 2 * this.re * this.im);
+    }
+
+    magnitude() {
+        return Math.sqrt(this.re * this.re + this.im * this.im);
     }
 }
 
 function drawAlgebraicFractal(depth, c, zoom, xOffset, yOffset) {
     let maxIterations = depth;
     loadPixels();
+    let color = colorPicker.value();
 
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
@@ -142,23 +152,32 @@ function drawAlgebraicFractal(depth, c, zoom, xOffset, yOffset) {
             while (n < maxIterations) {
                 z = z.ch().add(c);
 
-                if (abs(z.re + z.im) > 16) {
+                if (Math.sqrt(z.re * z.re + z.im * z.im) > 16) {
                     break;
                 }
                 n++;
             }
 
-            let bright = map(n, 0, maxIterations, 0, 255);
-            if (n === maxIterations) bright = 0;
+            let bright = map(n, 0, maxIterations, 0, 1);
+
+            // bright = Math.sqrt(bright) * 255;
+            // bright = bright > 255 ? 255 : bright;
+
+            bright = map(Math.sqrt(bright)*2, 0, 1, 0, 255);
+
+            if (n === maxIterations) {
+                bright = 0;
+            }
 
             let pix = (x + y * width) * 4;
-            pixels[pix + 0] = bright;
-            pixels[pix + 1] = bright;
-            pixels[pix + 2] = bright;
-            pixels[pix + 3] = 255;
+            pixels[pix + 0] = red(color);
+            pixels[pix + 1] = green(color);
+            pixels[pix + 2] = blue(color);
+            pixels[pix + 3] = bright;
         }
     }
     updatePixels();
+    // noLoop();
 }
 
 function parseComplex(cString) {

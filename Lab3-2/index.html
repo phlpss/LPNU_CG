@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="container">
+    <div id=canvasContainer>
+        <canvas id="canvas"></canvas>
+    </div>
+    <div id="side">
+        <p id="paragraphResolution">Resolution: </p>
+        <input type="range" id="rangeResolution" min="100" max="1000" step="100" value="500">
+        <p id="paragraphScale">Scale: </p>
+        <input type="range" id="rangeScale" min="0.01" max="50" step="0.01" value="1">
+        <p id="paragraphDepth">Depth: </p>
+        <input type="range" id="rangeDepth" min="1" max="10" step="1" value="1">
+        <div class="hr"></div>
+        <p>Offset: </p>
+        <p>X offset</p>
+        <input type="number" placeholder="Enter x offset" value="0" id="offsetXEnter">
+        <p>Y offset</p>
+        <input type="number" placeholder="Enter y offset" value="0" id="offsetYEnter">
+        <div class="hr"></div>
+        <p>Select fractal</p>
+        <select id="selectFractal">
+            <option value="1" selected>sh(z) + c</option>
+            <option value="2">Hilbert-Peano curve</option>
+        </select>
+        <div class="hr"></div>
+        <p>sh(z) + c fractal configuration</p>
+        <p>R</p>
+        <input type="number" placeholder="Enter radius" value="0" id="enterRadius">
+        <p>C real part</p>
+        <input type="number" placeholder="Enter c real part" value="0" id="cEnterReal">
+        <p>C imaginary part</p>
+        <input type="number" placeholder="Enter c imaginary part" value="0" id="cEnterImaginary">
+        <p>Select colors</p>
+        <p>Start color</p>
+        <input type="color" id="startColor">
+        <p>End color</p>
+        <input type="color" id="endColor">
+        <div class="hr"></div>
+        <p>Hilbert-Peano curve configuration</p>
+        <p>Select color of stroke</p>
+        <input type="color" id="strokeColor">
+        <p id="paragraphStrokeWidth">Curve stroke width: </p>
+        <input type="range" id="strokeWidth" min="1" max="10" value="1">
+        <div class="hr"></div>
+        <p>Apply and draw</p>
+        <input type="button" id="buttonApply" value="Apply">
+        <p>Clear canvas</p>
+        <input type="button" id="buttonClear" value="Clear">
+        <p>Download image</p>
+        <input type="button" id="buttonDownload" value="Download">
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
