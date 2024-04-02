@@ -23,15 +23,11 @@
             <button id="drawAlgebraicButton"><img width="30" height="30"
                                                   src="https://img.icons8.com/material-rounded/24/filled-star.png"
                                                   alt="filled-star"/></button>
-            <!--            ch (z)+с
-            -->
         </div>
-
-<!--        <label for="inputConst"></label><input type="number" id="inputConst" placeholder="const C">-->
 
         <label for="inputConst">Choose a value for C or enter your own:</label>
         <select id="inputConst" onchange="enableCustomC(this)">
-            <option value="-0.75">-0.75 + 0i</option>
+            <option value="-0.75+0i">-0.75 + 0i</option>
             <option value="-1+0.25i">-1 + 0.25i</option>
             <option value="0.3+0.5i">0.3 + 0.5i</option>
             <option value="custom">Enter Custom Value</option>
@@ -51,16 +47,14 @@
         </script>
 
 
-        <label>Depth: <input type="range" id="depthSlider" min="1" max="7" value="5"></label>
-        <label>Zoom: <input type="range" id="zoomSlider" min="0.5" max="2" step="0.1" value="1"></label>
-        <label>X Offset: <input type="range" id="xOffsetSlider" min="-300" max="300" value="0"></label>
+        <label>Depth: <input type="range" id="depthSlider" min="1" max="40" value="5"></label>
+        <label>Zoom: <input type="range" id="zoomSlider" min="0.5" max="5" step="0.1" value="1"></label>
+        <label>X Offset: <input type="range" id="xOffsetSlider" min="-1000" max="300" value="0"></label>
         <label>Y Offset: <input type="range" id="yOffsetSlider" min="-300" max="300" value="0"></label>
-        <label>Color: <input type="color" id="colorPicker" value="#ff9797"></label>
+        <label>Color: <input type="color" id="colorPicker" value="#1152BB"></label>
         <button onclick="saveCanvas('fractal', 'png')">Save Image</button>
     </div>
-    <div id="myCanvasWrapper"> <!-- This div will act as the parent to the canvas -->
-        <!-- The canvas will be inserted here by p5.js -->
-    </div>
+    <div id="myCanvasWrapper"> </div>
 </div>
 <script src="sketch.js"></script>
 </body>

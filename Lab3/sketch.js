@@ -1,4 +1,4 @@
-let depthSlider, colorPicker, zoomSlider, xOffsetSlider, yOffsetSlider;
+let depthSlider, colorPicker, zoomSlider, xOffsetSlider, yOffsetSlider, customC;
 let shapeToDraw = 'triangle';
 
 function setup() {
@@ -11,7 +11,6 @@ function setup() {
     yOffsetSlider = select('#yOffsetSlider');
 
 
-
     // Adding listeners
     let drawTriangleButton = select('#drawTriangleButton');
     drawTriangleButton.mousePressed(() => shapeToDraw = 'triangle');
@@ -20,7 +19,20 @@ function setup() {
     drawSquareButton.mousePressed(() => shapeToDraw = 'square');
 
     let drawAlgebraicButton = select('#drawAlgebraicButton');
-    drawAlgebraicButton.mousePressed(() => shapeToDraw = 'algebraic');
+    drawAlgebraicButton.mousePressed(() => {
+        let cInput;
+        let selectedValue = select('#inputConst').value();
+
+        if (selectedValue === 'custom') {
+            cInput = select('#customC').value();
+        } else {
+            cInput = selectedValue;
+        }
+
+        shapeToDraw = 'algebraic';
+        customC = parseComplex(cInput);
+    });
+
 }
 
 function draw() {
@@ -32,75 +44,21 @@ function draw() {
     let yOffset = yOffsetSlider.value();
 
     push();
-    translate(width / 2 + xOffset, height / 2 + yOffset);
+    translate(width / 2, height / 2);
     scale(zoom);
-    translate(-width / 2, -height / 2);
+    translate(-width / 2 + xOffset, -height / 2 + yOffset);
 
     if (shapeToDraw === 'triangle') {
         drawSeirpinskiTriangle(depth, 600, color);
     } else if (shapeToDraw === 'square') {
         drawSierpinskiSquare(depth, 600, 0, 0, color);
     } else if (shapeToDraw === 'algebraic') {
-        drawAlgebraicFractal(depth, 200); // max iterations and escape radius
+        drawAlgebraicFractal(depth, customC, zoom, xOffset, yOffset, color);
     }
     pop();
 }
-function drawAlgebraicFractal(maxIter, escapeRadius) {
-    let zoom = zoomSlider.value();
-    let xOffset = xOffsetSlider.value();
-    let yOffset = yOffsetSlider.value();
-    let colorValue = colorPicker.value();
-    let r = red(colorValue);
-    let g = green(colorValue);
-    let b = blue(colorValue);
-    let col = createVector(r / 255, g / 255, b / 255);
-
-    loadPixels();
-    for (let px = 0; px < width; px++) {
-        for (let py = 0; py < height; py++) {
-            let x = (px - width / 2) / (width / 4) * zoom - xOffset;
-            let y = (py - height / 2) / (height / 4) * zoom - yOffset;
-            let z = createVector(x, y);
-            let c = z.copy();
-            let iter = 0;
-
-            while (iter < maxIter) {
-                z = complex_cosh(z).add(c);
-                if (z.mag() > escapeRadius) break;
-                iter++;
-            }
-
-            let f = iter / maxIter;
-            let colVec = createVector(col.x * f, col.y * f, col.z * f);
-
-            let pix = (px + py * width) * 4;
-            pixels[pix + 0] = colVec.x * 255;
-            pixels[pix + 1] = colVec.y * 255;
-            pixels[pix + 2] = colVec.z * 255;
-            pixels[pix + 3] = 255;
-        }
-    }
-    updatePixels();
-}
-
-function complex_cosh(z) {
-    let real = cosh(z.x) * cos(z.y);
-    let imag = sinh(z.x) * sin(z.y);
-    return createVector(real, imag);
-}
-
-function cosh(val) {
-    let tmp = Math.exp(val);
-    return (tmp + 1.0 / tmp) / 2.0;
-}
-
-function sinh(val) {
-    let tmp = Math.exp(val);
-    return (tmp - 1.0 / tmp) / 2.0;
-}
 
 function drawSeirpinskiTriangle(depth, size, color) {
-    console.log("drawSeirpinskiTriangle called")
 
     if (depth === 1) {
         push();
@@ -124,7 +82,6 @@ function drawSeirpinskiTriangle(depth, size, color) {
         drawSeirpinskiTriangle(depth - 1, newSize, color);
         pop();
     }
-    console.log("drawSeirpinskiTriangle exit")
 }
 
 function equilateralTriangle(size) {
@@ -147,4 +104,76 @@ function drawSierpinskiSquare(depth, size, x, y, color) {
             }
         }
     }
+}
+
+class Complex {
+    constructor(a, b) {
+        this.re = a;
+        this.im = b;
+    }
+
+    add(c) {
+        return new Complex(this.re + c.re, this.im + c.im);
+    }
+
+    ch() {
+        // Implement the hyperbolic cosine for complex numbers
+        let re = Math.cosh(this.re) * Math.cos(this.im);
+        let im = Math.sinh(this.re) * Math.sin(this.im);
+        return new Complex(re, im);
+    }
+}
+
+function drawAlgebraicFractal(depth, c, zoom, xOffset, yOffset) {
+    let maxIterations = depth;
+    loadPixels();
+
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            let a = map(x, 0, width, -2 / zoom - (xOffset / 100), 2 / zoom - (xOffset / 100));
+            let b = map(y, 0, height, -2 / zoom - (yOffset / 100), 2 / zoom - (yOffset / 100));
+
+            let z = new Complex(a, b);
+            let n = 0;
+
+            while (n < maxIterations) {
+                z = z.ch().add(c);
+
+                if (abs(z.re + z.im) > 16) {
+                    break;
+                }
+                n++;
+            }
+
+            let bright = map(n, 0, maxIterations, 0, 255);
+            if (n === maxIterations) bright = 0;
+
+            let pix = (x + y * width) * 4;
+            pixels[pix + 0] = bright;
+            pixels[pix + 1] = bright;
+            pixels[pix + 2] = bright;
+            pixels[pix + 3] = 255;
+        }
+    }
+    updatePixels();
+}
+
+function parseComplex(cString) {
+    if (!cString || typeof cString !== 'string') {
+        return {re: 0, im: 0}; // Return a default value if input is invalid
+    }
+
+    let parts = cString.split('+');
+    if (parts.length !== 2) {
+        return {re: 0, im: 0}; // Return a default value if format is not 'a+bi'
+    }
+
+    let re = parseFloat(parts[0]);
+    let im = parseFloat(parts[1].replace('i', ''));
+
+    if (isNaN(re) || isNaN(im)) {
+        return {re: 0, im: 0}; // Return a default value if parsing fails
+    }
+
+    return {re: re, im: im};
 }
