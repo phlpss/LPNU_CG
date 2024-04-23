@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Досліди з моделями кольорів</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f4f9;
+            margin-top: 20px;
+        }
+        .img-preview {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        .control-label {
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+        .toolbar {
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            margin-top: 34px;
+            width: 25%;
+
+            padding: 10px;
+            background: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .image-section {
+            margin-top: 10px;
+            margin-left: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .custom-file-input {
+            border-radius: 0.25rem;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+
+        .button {
+            align-items: center;
+            background-color: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: .25rem;
+            box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+            box-sizing: border-box;
+            color: rgba(0, 0, 0, 0.85);
+            cursor: pointer;
+            display: inline-flex;
+            font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            justify-content: center;
+            line-height: 1.25;
+            margin-bottom: 7px;
+            min-height: 3rem;
+            padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+            position: relative;
+            text-decoration: none;
+            transition: all 250ms;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            vertical-align: baseline;
+            width: auto;
+        }
+
+        .button:hover,
+        .button:focus {
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            background-color: #F0F0F1;
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
+            color: rgba(0, 0, 0, 0.65);
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="mb-4">Програма "Досліди з моделями кольорів"</h2>
+    <form>
+        <div class="custom-file mb-3">
+            <input type="file" class="custom-file-input" id="imageInput" onchange="displayImage(this)">
+            <label class="custom-file-label" for="imageInput">Виберіть файл зображення...</label>
+        </div>
+        <div class="image-section">
+            <div class="row">
+                <div class="mb-3">
+                    <h6>Оригінальне зображення:</h6>
+                    <img id="originalImage" src="#" alt="Оригінальне зображення" class="img-fluid img-preview">
+                </div>
+                <div class="mb-3">
+                    <h6>Редаговане зображення:</h6>
+                    <img id="editedImage" src="#" alt="Редаговане зображення" class="img-fluid img-preview">
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <button class="button" onclick="convertColorSpace()">Перетворити RGB в XYZ і навпаки</button>
+                <div class="form-group mb-2">
+                    <label for="colorModifier" class="control-label">Змінити атрибут 'value' для кольору 'dark green':</label>
+                    <input type="range" class="form-control-range" id="colorModifier">
+                </div>
+                <button class="button" onclick="applyColorChanges()">Застосувати зміни</button>
+                <button class="button" onclick="displayColorInfo()">Інформація про колір</button>
+                <button class="button" onclick="saveImage()">Зберегти зображення</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function displayImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#originalImage').attr('src', e.target.result);
+                $('#editedImage').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function convertColorSpace() {
+        console.log("Перетворення просторів кольорів...");
+        // Тут має бути доданий код JavaScript для обробки перетворення кольорів
+    }
+
+    function applyColorChanges() {
+        console.log("Застосування змін кольору...");
+        // Тут має бути доданий код JavaScript для зміни кольору
+    }
+
+    function displayColorInfo() {
+        console.log("Відображення інформації про колір...");
+        // Тут має бути доданий код JavaScript для відображення інформації про колір
+    }
+
+    function saveImage() {
+        console.log("Збереження зображення...");
+        // Тут має бути доданий код JavaScript для збереження зображення
+    }
+    // Implement additional JavaScript for functionality as needed
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
