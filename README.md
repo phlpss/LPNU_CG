@@ -6,6 +6,12 @@
 
 ![image](https://github.com/phlpss/LPNU_CG/assets/112864294/d3aa9ddc-ae72-4b38-ba52-0d7bc773eae1)
 
-<h1>LAB 3 (uncompleted) </h1>
+<h1>LAB 3 </h1>
 
-![image](https://github.com/phlpss/LPNU_CG/assets/112864294/7f663e37-4bd1-4cd4-8ef4-d8ffb95794f3)
+![img.png](img.png)
+
+![img_1.png](img_1.png)
+
+![img_2.png](img_2.png)
+
+![img_3.png](img_3.png)

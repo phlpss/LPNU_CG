@@ -1,70 +1,29 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 0;
+.content {
     display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 20px;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    gap: 20px;
 }
 
-#container {
+.tools > *:not(:first-child) {
+    margin-top: 15px;
+}
+
+.draw-button {
     display: flex;
-    width: 80%;
-    max-width: 1200px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    background-color: white;
-    overflow: hidden;
+    flex-direction: row;
+    gap: 5px;
 }
 
-#canvasContainer {
-    flex-grow: 2;
-    padding: 20px;
+.draw-button > * {
+    background: none;
+    color: #333;
+    padding: 0;
+    align-self: flex-end;
 }
 
-canvas {
-    width: 100%;
-    height: auto;
-    border: 1px solid #ddd;
-    background-color: #fafafa;
-}
-
-#side {
-    padding: 20px;
-    flex-basis: 300px;
-    box-sizing: border-box;
-}
-
-#side p, #side select, #side input {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-input[type="range"], input[type="number"], select {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-    box-sizing: border-box;
-}
-
-input[type="button"] {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-input[type="button"]:hover {
-    background-color: #45a049;
-}
-
-.hr {
-    border-top: 1px solid #eee;
-    margin: 20px 0;
+.draw-button:hover {
+    background: none;
 }
