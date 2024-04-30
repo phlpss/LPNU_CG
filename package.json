@@ -1,0 +1,17 @@
+{
+  "name": "lpnu_cg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phlpss/LPNU_CG.git"
+  },
+  "private": true,
+  "dependencies": {
+    "file-saver": "^2.0.5"
+  }
+}

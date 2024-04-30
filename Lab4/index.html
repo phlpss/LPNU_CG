@@ -5,101 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Досліди з моделями кольорів</title>
 
+    <link href="style.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="sketch.js"></script>
-    <style>
-        body {
-            background-color: #f4f4f9;
-            margin-top: 20px;
-        }
-
-        .img-preview {
-            height: 400px; /* Fixed height for consistency */
-            /*width: auto; !* Maintain aspect ratio *!*/
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            padding: 5px;
-        }
-
-        .control-label {
-            margin-top: 10px;
-            margin-bottom: 0;
-        }
-
-        .toolbar {
-            display: flex;
-            flex-direction: column;
-            justify-content: start;
-            /*margin-top: 34px;*/
-            width: 25%;
-
-            padding: 10px;
-            background: #fdfdfd;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .image-section {
-            margin-top: 10px;
-            margin-left: 15px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .custom-file-input {
-            border-radius: 0.25rem;
-            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-        }
-
-        .button {
-            align-items: center;
-            background-color: #FFFFFF;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: .25rem;
-            box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
-            box-sizing: border-box;
-            color: rgba(0, 0, 0, 0.85);
-            cursor: pointer;
-            display: inline-flex;
-            font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            justify-content: center;
-            line-height: 1.25;
-            margin-bottom: 0.5rem;
-            min-height: 3rem;
-            padding: calc(.875rem - 1px) calc(1.5rem - 1px);
-            position: relative;
-            text-decoration: none;
-            transition: all 250ms;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            vertical-align: baseline;
-            width: auto;
-        }
-
-        .button:hover,
-        .button:focus {
-            border-color: rgba(0, 0, 0, 0.15);
-            box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-            color: rgba(0, 0, 0, 0.65);
-        }
-
-        .button:hover {
-            transform: translateY(-1px);
-        }
-
-        .button:active {
-            background-color: #F0F0F1;
-            border-color: rgba(0, 0, 0, 0.15);
-            box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
-            color: rgba(0, 0, 0, 0.65);
-            transform: translateY(0);
-        }
-    </style>
 </head>
 <body>
 
@@ -113,12 +26,13 @@
         <div class="image-section">
             <div class="row">
                 <figure class="figure">
-                    <img id="originalImage" src="#" alt="Оригінальне зображення" class="img-fluid img-preview">
+                    <img id="originalImage" src="default-img.png" alt="Оригінальне зображення"
+                         class="img-fluid img-preview" style="max-height: 400px;">
                     <figcaption class="figure-caption">Оригінальне зображення</figcaption>
                 </figure>
 
                 <figure class="figure">
-                    <canvas id="canvasContainer" class="img-fluid img-preview"></canvas>
+                    <canvas id="canvasContainer" class="img-fluid img-preview" height="400"></canvas>
                     <figcaption class="figure-caption">Редаговане зображення</figcaption>
                 </figure>
             </div>
@@ -127,12 +41,12 @@
                 <div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="colorSpaceRadio"
-                               id="RGB" onclick="convertColorSpace()">
+                               id="RGB" onclick="applyXYZtoRGB()">
                         <label class="form-check-label" for="RGB">RGB</label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="colorSpaceRadio"
-                               id="XYZ" onclick="convertColorSpace()">
+                               id="XYZ" onclick="applyRGBtoXYZ()">
                         <label class="form-check-label" for="XYZ">XYZ</label>
                     </div>
                 </div>
@@ -143,73 +57,13 @@
                 <button type="button" class="button" onclick="applyColorChanges()">Застосувати зміни</button>
                 <button type="button" class="button" onclick="displayColorInfo()">Інформація про колір</button>
 
-                <button type="button" class="button" onclick="saveCanvas('editedImage', 'png')">Зберегти зображення
+                <button type="button" class="button" onclick="saveCanvasImage()">Зберегти зображення
                 </button>
-                <!--                <button type="button" class="button" onclick="saveImage()">Зберегти зображення</button>-->
             </div>
 
         </div>
     </form>
 </div>
-
-<!--<script>-->
-<!--    function displayImage(input) {-->
-<!--        if (input.files && input.files[0]) {-->
-<!--            const reader = new FileReader();-->
-<!--            reader.onload = function (e) {-->
-<!--                const img = new Image();-->
-<!--                img.onload = function () {-->
-<!--                    const canvas = document.getElementById('imageCanvas');-->
-<!--                    const ctx = canvas.getContext('2d');-->
-<!--                    canvas.width = img.width;-->
-<!--                    canvas.height = img.height;-->
-<!--                    ctx.drawImage(img, 0, 0);-->
-<!--                };-->
-<!--                img.src = e.target.result;-->
-<!--                document.getElementById('originalImage').src = e.target.result;-->
-<!--            };-->
-<!--            reader.readAsDataURL(input.files[0]);-->
-<!--        }-->
-<!--    }-->
-
-<!--    function applyRGBtoXYZ(imageData) {-->
-<!--        return undefined;-->
-<!--    }-->
-
-<!--    function convertColorSpace() {-->
-<!--        console.log('Перетворення просторів кольорів...');-->
-<!--        let canvas = document.getElementById('imageCanvas');-->
-<!--        let ctx = canvas.getContext('2d');-->
-<!--        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);-->
-<!--        // This is just a placeholder for real processing logic-->
-<!--        imageData = applyRGBtoXYZ(imageData); // You need to define this function based on the conversion logic-->
-<!--        ctx.putImageData(imageData, 0, 0);-->
-<!--    }-->
-
-<!--    function applyColorChanges() {-->
-<!--        console.log("Застосування змін кольору...");-->
-
-<!--        let canvas = document.getElementById('imageCanvas');-->
-<!--        let ctx = canvas.getContext('2d');-->
-<!--        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);-->
-<!--        let value = parseInt(document.getElementById('colorModifier').value, 10);-->
-
-<!--        for (let i = 0; i < imageData.data.length; i += 4) {-->
-<!--            imageData.data[i + 1] = Math.max(0, imageData.data[i + 1] + value);-->
-<!--        }-->
-<!--        ctx.putImageData(imageData, 0, 0);-->
-<!--    }-->
-
-<!--    function displayColorInfo() {-->
-<!--        console.log("Відображення інформації про колір...");-->
-<!--        alert("Placeholder for color information.");-->
-<!--    }-->
-<!--</script>-->
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
 
