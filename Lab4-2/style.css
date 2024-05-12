@@ -75,9 +75,9 @@ input[type="range"] {
     width: 90%; /* Make the slider take full width of the controls area */
 }
 
-input[type="checkbox"], input[type="file"] {
+input[type="file"] {
     cursor: pointer;
-    display: none; /* Ensuring file input remains hidden */
+    display: none;
 }
 
 p, #paragraphSelectDimension, #RGB-color-info, #XYZ-color-info, #HSV-color-info, #x1, #y1, #x2, #y2 {
