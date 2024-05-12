@@ -49,116 +49,6 @@ function getPixelInArray() {
     }
 }
 
-function convertFromRgbToHsl(red, green, blue) {
-    const r = red / 255;
-    const g = green / 255;
-    const b = blue / 255;
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const lightness = (max + min) / 2;
-    let hue, saturation;
-    if (max == min) {
-        hue = 0;
-        saturation = 0;
-    } else {
-        const delta = max - min;
-        saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-        switch (max) {
-            case r:
-                hue = ((g - b) / delta + (g < b ? 6 : 0)) * 60;
-                break;
-            case g:
-                hue = ((b - r) / delta + 2) * 60;
-                break;
-            case b:
-                hue = ((r - g) / delta + 4) * 60;
-                break;
-        }
-    }
-    return [hue, saturation * 100, lightness * 100];
-}
-
-function convertFromHslToRgb(hue, saturation, lightness) {
-    const h = hue / 360;
-    const s = saturation / 100;
-    const l = lightness / 100;
-    let r, g, b;
-    if (s == 0) {
-        r = g = b = l;
-    } else {
-        const hueToRgb = (p, q, t) => {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-        };
-        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        const p = 2 * l - q;
-        r = hueToRgb(p, q, h + 1 / 3);
-        g = hueToRgb(p, q, h);
-        b = hueToRgb(p, q, h - 1 / 3);
-    }
-    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
-}
-
-function convertFromRgbToXYZ(red, green, blue) {
-    const rLinear = red / 255;
-    const gLinear = green / 255;
-    const bLinear = blue / 255;
-    const gammaCorrect = (val) => val <= 0.04045 ? val / 12.92 : Math.pow((val + 0.055) / 1.055, 2.4);
-    const r = gammaCorrect(rLinear);
-    const g = gammaCorrect(gLinear);
-    const b = gammaCorrect(bLinear);
-    const x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
-    const y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750;
-    const z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041;
-    const xRef = 0.95047;
-    const yRef = 1.00000;
-    const zRef = 1.08883;
-    const epsilon = 0.008856;
-    const kappa = 903.3;
-    const xr = x / xRef;
-    const yr = y / yRef;
-    const zr = z / zRef;
-    const fx = xr > epsilon ? Math.pow(xr, 1 / 3) : (kappa * xr + 16) / 116;
-    const fy = yr > epsilon ? Math.pow(yr, 1 / 3) : (kappa * yr + 16) / 116;
-    const fz = zr > epsilon ? Math.pow(zr, 1 / 3) : (kappa * zr + 16) / 116;
-    const lightness = 116 * fy - 16;
-    const alpha = 500 * (fx - fy);
-    const beta = 200 * (fy - fz);
-    return [lightness, alpha, beta];
-}
-
-function convertFromXYZToRgb(lightness, alpha, beta) {
-    const xRef = 0.95047;
-    const yRef = 1.00000;
-    const zRef = 1.08883;
-    const epsilon = 0.008856;
-    const kappa = 903.3;
-    const fy = (lightness + 16) / 116;
-    const fx = alpha / 500 + fy;
-    const fz = fy - beta / 200;
-    const xyz = {
-        x: (fx ** 3 > epsilon) ? fx ** 3 : (116 * fx - 16) / kappa,
-        y: (fy ** 3 > epsilon) ? fy ** 3 : (116 * fy - 16) / kappa,
-        z: (fz ** 3 > epsilon) ? fz ** 3 : (116 * fz - 16) / kappa
-    };
-    const xr = xyz.x * xRef;
-    const yr = xyz.y * yRef;
-    const zr = xyz.z * zRef;
-    const rLinear = xr * 3.2404542 - yr * 1.5371385 - zr * 0.4985314;
-    const gLinear = -xr * 0.9692660 + yr * 1.8760108 + zr * 0.0415560;
-    const bLinear = xr * 0.0556434 - yr * 0.2040259 + zr * 1.0572252;
-    const gammaCorrect = (val) => val <= 0.0031308 ? 12.92 * val : (1 + 0.055) * Math.pow(val, 1 / 2.4) - 0.055;
-    const gammaCorrected = (val) => Math.max(0, Math.min(1, gammaCorrect(val)));
-    const red = gammaCorrected(rLinear);
-    const green = gammaCorrected(gLinear);
-    const blue = gammaCorrected(bLinear);
-    return [Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255)];
-}
-
 function changeSorL() {
     if (rectangle.length != 2) {
         return;
@@ -174,54 +64,68 @@ function changeSorL() {
             const red = data[0];
             const green = data[1];
             const blue = data[2];
-            if ((colorToChange.value == "0" && parseInt(red) == 255 && parseInt(green) == 0 && parseInt(blue) == 0) ||
-                (colorToChange.value == "1" && parseInt(red) == 255 && parseInt(green) == 255 && parseInt(blue) == 0) ||
-                (colorToChange.value == "2" && parseInt(red) == 0 && parseInt(green) == 255 && parseInt(blue) == 0) ||
-                (colorToChange.value == "3" && parseInt(red) == 0 && parseInt(green) == 255 && parseInt(blue) == 255) ||
-                (colorToChange.value == "4" && parseInt(red) == 0 && parseInt(green) == 0 && parseInt(blue) == 255) ||
-                (colorToChange.value == "5" && parseInt(red) == 255 && parseInt(green) == 0 && parseInt(blue) == 255)
-            ) {
-                let [hue, saturation, lightness] = convertFromRgbToHsl(red, green, blue);
-                if (parameterToChange == "0") {
-                    saturation = document.getElementById("rangeParameter").value;
-                } else {
-                    lightness = document.getElementById("rangeParameter").value;
-                }
-                const [r, g, b] = convertFromHslToRgb(hue, saturation, lightness);
-                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                ctx.fillRect(j, i, 1, 1);
-            }
+
+            let hsv = rgbToHsv(red, green, blue);
+            hsv.V = document.getElementById("rangeParameter").value;
+
+            const [r, g, b] = convertFromHslToRgb(hsv.H, hsv.S, hsv.V);
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.fillRect(j, i, 1, 1);
         }
     }
 }
 
+// function setPixelInArray() {
+//     let checkFirstComponent = checkComponents[0].checked;
+//     let checkSecondComponent = checkComponents[1].checked;
+//     let checkThirdComponent = checkComponents[2].checked;
+//     for (let i = 0; i < height; i++) {
+//         for (let j = 0; j < width; j++) {
+//             const red = arrayOfPixels[i][j][0];
+//             const green = arrayOfPixels[i][j][1];
+//             const blue = arrayOfPixels[i][j][2];
+//             if (currentDimension === "RGB") {
+//                 ctx.fillStyle = `rgb(${checkFirstComponent ? red : 0}, ${checkSecondComponent ? green : 0}, ${checkThirdComponent ? blue : 0})`;
+//                 ctx.fillRect(j, i, 1, 1);
+//             } else if (currentDimension === "XYZ") {
+//                 const [lightness, alpha, beta] = convertFromRgbToXYZ(red, green, blue);
+//                 const [r, g, b] = convertFromXYZToRgb(checkFirstComponent ? lightness : 0, checkSecondComponent ? alpha : 0, checkThirdComponent ? beta : 0);
+//                 ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+//                 ctx.fillRect(j, i, 1, 1);
+//             } else {
+//                 const [hue, saturation, lightness] = convertFromRgbToHsl(red, green, blue);
+//                 const [r, g, b] = convertFromHslToRgb(checkFirstComponent ? hue : 0, checkSecondComponent ? saturation : 0, checkThirdComponent ? lightness : 0);
+//                 ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+//                 ctx.fillRect(j, i, 1, 1);
+//             }
+//         }
+//     }
+//     if (rectangle) {
+//         changeSorL();
+//     }
+// }
+
 function setPixelInArray() {
-    let checkFirstComponent = checkComponents[0].checked;
-    let checkSecondComponent = checkComponents[1].checked;
-    let checkThirdComponent = checkComponents[2].checked;
+    // Retrieve the current state of each checkbox
+    let checkFirstComponent = document.getElementById('checkFirstComponent').checked;
+    let checkSecondComponent = document.getElementById('checkSecondComponent').checked;
+    let checkThirdComponent = document.getElementById('checkThirdComponent').checked;
+
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             const red = arrayOfPixels[i][j][0];
             const green = arrayOfPixels[i][j][1];
             const blue = arrayOfPixels[i][j][2];
-            if (currentDimension === "RGB") {
-                ctx.fillStyle = `rgb(${checkFirstComponent ? red : 0}, ${checkSecondComponent ? green : 0}, ${checkThirdComponent ? blue : 0})`;
-                ctx.fillRect(j, i, 1, 1);
-            } else if (currentDimension === "XYZ") {
-                const [lightness, alpha, beta] = convertFromRgbToXYZ(red, green, blue);
-                const [r, g, b] = convertFromXYZToRgb(checkFirstComponent ? lightness : 0, checkSecondComponent ? alpha : 0, checkThirdComponent ? beta : 0);
-                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                ctx.fillRect(j, i, 1, 1);
-            } else {
-                const [hue, saturation, lightness] = convertFromRgbToHsl(red, green, blue);
-                const [r, g, b] = convertFromHslToRgb(checkFirstComponent ? hue : 0, checkSecondComponent ? saturation : 0, checkThirdComponent ? lightness : 0);
-                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                ctx.fillRect(j, i, 1, 1);
-            }
+
+            // Apply the checkbox state to the color components
+            const displayRed = checkFirstComponent ? red : 0;
+            const displayGreen = checkSecondComponent ? green : 0;
+            const displayBlue = checkThirdComponent ? blue : 0;
+
+            // Set the pixel color on the canvas
+            ctx.fillStyle = `rgb(${displayRed}, ${displayGreen}, ${displayBlue})`;
+            ctx.fillRect(j, i, 1, 1);
         }
-    }
-    if (rectangle) {
-        changeSorL();
     }
 }
 
@@ -248,6 +152,7 @@ document.getElementById("selectDimension").addEventListener('change', function (
     }
 });
 
+// DONE
 canvas.onmousemove = function (event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -304,7 +209,7 @@ canvas.onmousedown = function (event) {
             setPixelInArray();
         }
         rectangle = [];
-        if (tempXMin != tempXMax && tempYMin != tempYMax) {
+        if (tempXMin !== tempXMax && tempYMin !== tempYMax) {
             rectangle.push(new Point(tempXMin, tempYMin));
             rectangle.push(new Point(tempXMax, tempYMax));
             x1.innerHTML = `X1: ${tempXMin}`;
@@ -324,23 +229,16 @@ canvas.onmousedown = function (event) {
     }
 }
 
-checkComponents[0].onchange = () => {
-    if (arrayOfPixels != null) {
-        setPixelInArray();
-    }
-}
-
-checkComponents[1].onchange = () => {
-    if (arrayOfPixels != null) {
-        setPixelInArray();
-    }
-}
-
-checkComponents[2].onchange = () => {
-    if (arrayOfPixels != null) {
-        setPixelInArray();
-    }
-}
+checkComponents.forEach((checkbox, index) => {
+    checkbox.onchange = () => {
+        if (arrayOfPixels !== null) {
+            console.log(`Component ${index} changed`);
+            setPixelInArray();
+        } else {
+            console.log("Pixel data not loaded.");
+        }
+    };
+});
 
 
 function parameterChange() {
@@ -384,11 +282,14 @@ function displayImage(file) {
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                getPixelInArray();
             };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
+
 }
 
 window.onload = () => {
