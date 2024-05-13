@@ -28,6 +28,32 @@ class Point {
 
 let currentDimension = "0";
 
+// DONE
+function displayImage(file) {
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                document.getElementById('originalImage').src = img.src;
+
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                const containerWidth = canvas.parentElement.offsetWidth;
+                const scale = Math.min(1, containerWidth / img.width);
+
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                getPixelInArray();
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 //DONE
 function getPixelInArray() {
     arrayOfPixels = [];
@@ -47,7 +73,8 @@ function getPixelInArray() {
     }
 }
 
-function setPixelInArray(model) {
+// DONE
+function setPixelInArray() {
     let checkComponents = [
         document.getElementById('checkFirstComponent').checked,
         document.getElementById('checkSecondComponent').checked,
@@ -57,30 +84,7 @@ function setPixelInArray(model) {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             const pixel = arrayOfPixels[i][j];
-            let convertedPixel, finalRGB;
-
-            switch (model) {
-                case "0": // RGB
-                    finalRGB = pixel.map((value, index) => checkComponents[index] ? value : 0);
-                    break;
-                case "1": // XYZ
-                    convertedPixel = rgbToXyz(pixel[0], pixel[1], pixel[2]);
-                    convertedPixel = [convertedPixel.X, convertedPixel.Y, convertedPixel.Z].map((value, index) => checkComponents[index] ? value : 0);
-                    finalRGB = xyzToRgb(convertedPixel[0], convertedPixel[1], convertedPixel[2]);
-                    break;
-                case "2": // HSV
-                    convertedPixel = rgbToHsv(pixel[0], pixel[1], pixel[2]);
-                    // convertedPixel = [convertedPixel.H, convertedPixel.S, convertedPixel.V].map((value, index) => checkComponents[index] ? value : 0);
-                    convertedPixel.H = checkComponents[0] ? convertedPixel.H : 0;  // Preserving hue regardless
-                    convertedPixel.S = checkComponents[1] ? convertedPixel.S : 0;  // Zero out saturation if unchecked
-                    convertedPixel.V = checkComponents[2] ? convertedPixel.V : 0;  // Zero out value if unchecked
-                    console.log(convertedPixel.H)
-                    finalRGB = hsvToRgb(convertedPixel.H, convertedPixel.S, convertedPixel.V);
-                    break;
-                default:
-                    finalRGB = [0, 0, 0]; // Fallback to black
-            }
-
+            let finalRGB =  pixel.map((value, index) => checkComponents[index] ? value : 0);
             ctx.fillStyle = `rgb(${finalRGB[0]}, ${finalRGB[1]}, ${finalRGB[2]})`;
             ctx.fillRect(j, i, 1, 1);
         }
@@ -115,65 +119,102 @@ function changeSorL() {
         }
     }
 }
-document.getElementById("selectDimension").addEventListener('change', function () {
-    currentDimension = this.value;
-    updateCheckboxLabels(currentDimension);
-    if (arrayOfPixels !== null) {
-        // setPixelInArray(currentDimension);
-    }
-});
 
-function updateCheckboxLabels(model) {
-    const labels = ['R', 'G', 'B']; // Default RGB
-    if (model === "1") {
-        labels[0] = 'X';
-        labels[1] = 'Y';
-        labels[2] = 'Z';
-    } else if (model === "2") {
-        labels[0] = 'H';
-        labels[1] = 'S';
-        labels[2] = 'V';
+// DONE
+function updateCanvasAccordingToColorModel(dimension) {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+        const red = data[i];
+        const green = data[i + 1];
+        const blue = data[i + 2];
+        let converted;
+
+        if (dimension === "0") {
+            continue;
+        } else if (dimension === "1") {
+            converted = rgbToXyz(red, green, blue);
+            const rgb = xyzToRgb(converted.X, converted.Y, converted.Z);
+            data[i] = rgb.R;
+            data[i + 1] = rgb.G;
+            data[i + 2] = rgb.B;
+        } else if (dimension === "2") {
+            const hsv = rgbToHsv(red, green, blue);
+            converted = hsvToRgb([hsv.H, hsv.S, hsv.V]);
+            data[i] = converted[0];
+            data[i + 1] = converted[1];
+            data[i + 2] = converted[2];
+        }
     }
-    document.querySelectorAll('.components label').forEach((label, index) => {
-        label.textContent = labels[index];
-    });
+    // Update the canvas with new imageData
+    ctx.putImageData(imageData, 0, 0);
 }
 
-/** new */
-// document.getElementById('selectDimension').addEventListener('change', function () {
-//     const dimension = this.value;
-//     updateCanvasAccordingToColorModel(dimension);
-// });
-//
-// function updateCanvasAccordingToColorModel(dimension) {
-//     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-//     let data = imageData.data;
-//
-//     for (let i = 0; i < data.length; i += 4) {
-//         const red = data[i];
-//         const green = data[i + 1];
-//         const blue = data[i + 2];
-//         let converted;
-//
-//         if (dimension === "0") {
-//             continue;
-//         } else if (dimension === "1") {
-//             converted = rgbToXyz(red, green, blue);
-//             const rgb = xyzToRgb(converted.X, converted.Y, converted.Z);
-//             data[i] = rgb.R;
-//             data[i + 1] = rgb.G;
-//             data[i + 2] = rgb.B;
-//         } else if (dimension === "2") {
-//             const hsv = rgbToHsv(red, green, blue);
-//             converted = hsvToRgb([hsv.H, hsv.S, hsv.V]);
-//             data[i] = converted[0];
-//             data[i + 1] = converted[1];
-//             data[i + 2] = converted[2];
-//         }
-//     }
-//     // Update the canvas with new imageData
-//     ctx.putImageData(imageData, 0, 0);
-// }
+// DONE
+document.getElementById('selectDimension').addEventListener('change', function () {
+    currentDimension = this.value;
+    updateCanvasAccordingToColorModel(currentDimension);
+});
+
+// DONE
+checkComponents.forEach((checkbox, index) => {
+    checkbox.onchange = () => {
+        if (arrayOfPixels !== null) {
+            console.log(`Component ${index} changed`);
+            setPixelInArray();
+        } else {
+            console.log("Pixel data not loaded.");
+        }
+    };
+});
+
+function parameterChange() {
+    if (rectangle) {
+        setPixelInArray();
+        changeSorL();
+    }
+}
+
+document.getElementById("rangeParameter").oninput = parameterChange;
+
+// DONE
+document.getElementById("buttonDownload").addEventListener('click', function () {
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    link.download = `${currentDimension}.png`;
+    link.click();
+});
+
+// DONE
+document.getElementById('buttonClear').addEventListener('click', function () {
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image()
+
+    img.onload = function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = document.getElementById('originalImage').src;
+
+    document.getElementById('checkFirstComponent').checked = true;
+    document.getElementById('checkSecondComponent').checked = true;
+    document.getElementById('checkThirdComponent').checked = true;
+
+    document.getElementById("rangeParameter").value = 0.5;
+
+    rectangle = null;
+    x1.innerHTML = "X1: ";
+    y1.innerHTML = "Y1: ";
+    x2.innerHTML = "X2: ";
+    y2.innerHTML = "Y2: ";
+});
+
+// DONE
+document.getElementById('buttonUpload').addEventListener('click', function () {
+    document.getElementById('imageInput').click();
+});
 
 // DONE
 canvas.onmousemove = function (event) {
@@ -257,87 +298,7 @@ canvas.onmousedown = function (event) {
     }
 }
 
-/** new */
-checkComponents.forEach((checkbox, index) => {
-    checkbox.onchange = () => {
-        if (arrayOfPixels !== null) {
-            console.log(`Component ${index} changed`);
-            setPixelInArray(currentDimension);
-        } else {
-            console.log("Pixel data not loaded.");
-        }
-    };
-});
-
-function parameterChange() {
-    if (rectangle) {
-        setPixelInArray();
-        changeSorL();
-    }
-}
-
-document.getElementById("rangeParameter").oninput = parameterChange;
-
-document.getElementById("buttonDownload").addEventListener('click', function () {
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-    link.download = `${currentDimension}.png`;
-    link.click();
-});
-
-document.getElementById('buttonClear').addEventListener('click', function () {
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image()
-
-    img.onload = function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    };
-    img.src = document.getElementById('originalImage').src;
-
-    document.getElementById('checkFirstComponent').checked = true;
-    document.getElementById('checkSecondComponent').checked = true;
-    document.getElementById('checkThirdComponent').checked = true;
-
-    document.getElementById("rangeParameter").value = 0.5;
-
-    rectangle = null;
-    x1.innerHTML = "X1: ";
-    y1.innerHTML = "Y1: ";
-    x2.innerHTML = "X2: ";
-    y2.innerHTML = "Y2: ";
-});
-
-document.getElementById('buttonUpload').addEventListener('click', function () {
-    document.getElementById('imageInput').click();
-});
-
-function displayImage(file) {
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = new Image();
-            img.onload = function () {
-                document.getElementById('originalImage').src = img.src;
-
-                const canvas = document.getElementById('canvas');
-                const ctx = canvas.getContext('2d');
-                const containerWidth = canvas.parentElement.offsetWidth;
-                const scale = Math.min(1, containerWidth / img.width);
-
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                getPixelInArray();
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
+// DONE
 window.onload = () => {
     console.log(hsvToRgb(0, 100, 50))
     parameterChange();
