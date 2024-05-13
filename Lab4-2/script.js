@@ -4,6 +4,9 @@ let resolution = 1000;
 ctx.canvas.width = resolution;
 ctx.canvas.height = resolution;
 
+let width = ctx.canvas.width;
+let height = ctx.canvas.height;
+
 let checkComponents = [document.getElementById("checkFirstComponent"),
     document.getElementById("checkSecondComponent"),
     document.getElementById("checkThirdComponent")];
@@ -16,7 +19,6 @@ let y2 = document.getElementById("y2");
 let arrayOfPixels = null;
 let rectangle = null;
 
-
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -24,13 +26,9 @@ class Point {
     }
 }
 
+let currentDimension = "0";
 
-let width = ctx.canvas.width;
-let height = ctx.canvas.height;
-
-let currentDimension = "RGB";
-
-
+//DONE
 function getPixelInArray() {
     arrayOfPixels = [];
     for (let i = 0; i < height; i++) {
@@ -49,7 +47,48 @@ function getPixelInArray() {
     }
 }
 
+function setPixelInArray(model) {
+    let checkComponents = [
+        document.getElementById('checkFirstComponent').checked,
+        document.getElementById('checkSecondComponent').checked,
+        document.getElementById('checkThirdComponent').checked
+    ];
+
+    for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+            const pixel = arrayOfPixels[i][j];
+            let convertedPixel, finalRGB;
+
+            switch (model) {
+                case "0": // RGB
+                    finalRGB = pixel.map((value, index) => checkComponents[index] ? value : 0);
+                    break;
+                case "1": // XYZ
+                    convertedPixel = rgbToXyz(pixel[0], pixel[1], pixel[2]);
+                    convertedPixel = [convertedPixel.X, convertedPixel.Y, convertedPixel.Z].map((value, index) => checkComponents[index] ? value : 0);
+                    finalRGB = xyzToRgb(convertedPixel[0], convertedPixel[1], convertedPixel[2]);
+                    break;
+                case "2": // HSV
+                    convertedPixel = rgbToHsv(pixel[0], pixel[1], pixel[2]);
+                    // convertedPixel = [convertedPixel.H, convertedPixel.S, convertedPixel.V].map((value, index) => checkComponents[index] ? value : 0);
+                    convertedPixel.H = checkComponents[0] ? convertedPixel.H : 0;  // Preserving hue regardless
+                    convertedPixel.S = checkComponents[1] ? convertedPixel.S : 0;  // Zero out saturation if unchecked
+                    convertedPixel.V = checkComponents[2] ? convertedPixel.V : 0;  // Zero out value if unchecked
+                    console.log(convertedPixel.H)
+                    finalRGB = hsvToRgb(convertedPixel.H, convertedPixel.S, convertedPixel.V);
+                    break;
+                default:
+                    finalRGB = [0, 0, 0]; // Fallback to black
+            }
+
+            ctx.fillStyle = `rgb(${finalRGB[0]}, ${finalRGB[1]}, ${finalRGB[2]})`;
+            ctx.fillRect(j, i, 1, 1);
+        }
+    }
+}
+
 function changeSorL() {
+    console.log("changeSorL()");
     if (rectangle.length != 2) {
         return;
     }
@@ -66,91 +105,75 @@ function changeSorL() {
             const blue = data[2];
 
             let hsv = rgbToHsv(red, green, blue);
+            hsv.S = hsv.S / 100;
             hsv.V = document.getElementById("rangeParameter").value;
 
-            const [r, g, b] = convertFromHslToRgb(hsv.H, hsv.S, hsv.V);
-            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+            console.log("hsv: " + hsv.H + " " + hsv.S + " " + hsv.V);
+            const rgb = hsvToRgb(hsv.H, hsv.S, hsv.V);
+            ctx.fillStyle = `rgb(${rgb.R}, ${rgb.G}, ${rgb.B}`;
             ctx.fillRect(j, i, 1, 1);
         }
     }
 }
-
-// function setPixelInArray() {
-//     let checkFirstComponent = checkComponents[0].checked;
-//     let checkSecondComponent = checkComponents[1].checked;
-//     let checkThirdComponent = checkComponents[2].checked;
-//     for (let i = 0; i < height; i++) {
-//         for (let j = 0; j < width; j++) {
-//             const red = arrayOfPixels[i][j][0];
-//             const green = arrayOfPixels[i][j][1];
-//             const blue = arrayOfPixels[i][j][2];
-//             if (currentDimension === "RGB") {
-//                 ctx.fillStyle = `rgb(${checkFirstComponent ? red : 0}, ${checkSecondComponent ? green : 0}, ${checkThirdComponent ? blue : 0})`;
-//                 ctx.fillRect(j, i, 1, 1);
-//             } else if (currentDimension === "XYZ") {
-//                 const [lightness, alpha, beta] = convertFromRgbToXYZ(red, green, blue);
-//                 const [r, g, b] = convertFromXYZToRgb(checkFirstComponent ? lightness : 0, checkSecondComponent ? alpha : 0, checkThirdComponent ? beta : 0);
-//                 ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-//                 ctx.fillRect(j, i, 1, 1);
-//             } else {
-//                 const [hue, saturation, lightness] = convertFromRgbToHsl(red, green, blue);
-//                 const [r, g, b] = convertFromHslToRgb(checkFirstComponent ? hue : 0, checkSecondComponent ? saturation : 0, checkThirdComponent ? lightness : 0);
-//                 ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-//                 ctx.fillRect(j, i, 1, 1);
-//             }
-//         }
-//     }
-//     if (rectangle) {
-//         changeSorL();
-//     }
-// }
-
-function setPixelInArray() {
-    // Retrieve the current state of each checkbox
-    let checkFirstComponent = document.getElementById('checkFirstComponent').checked;
-    let checkSecondComponent = document.getElementById('checkSecondComponent').checked;
-    let checkThirdComponent = document.getElementById('checkThirdComponent').checked;
-
-    for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-            const red = arrayOfPixels[i][j][0];
-            const green = arrayOfPixels[i][j][1];
-            const blue = arrayOfPixels[i][j][2];
-
-            // Apply the checkbox state to the color components
-            const displayRed = checkFirstComponent ? red : 0;
-            const displayGreen = checkSecondComponent ? green : 0;
-            const displayBlue = checkThirdComponent ? blue : 0;
-
-            // Set the pixel color on the canvas
-            ctx.fillStyle = `rgb(${displayRed}, ${displayGreen}, ${displayBlue})`;
-            ctx.fillRect(j, i, 1, 1);
-        }
-    }
-}
-
-
 document.getElementById("selectDimension").addEventListener('change', function () {
-    currentDimension = parseInt(document.getElementById("selectDimension").value);
-    (currentDimension == 0) ? currentDimension = "RGB" : ((currentDimension == 1) ? currentDimension = "XYZ" : currentDimension = "HSV");
-    document.getElementById("paragraphSelectDimension").innerHTML = `${currentDimension} configuration`;
-    if (currentDimension == "RGB") {
-        components[0].innerHTML = "R";
-        components[1].innerHTML = "G";
-        components[2].innerHTML = "B";
-    } else if (currentDimension == "XYZ") {
-        components[0].innerHTML = "X";
-        components[1].innerHTML = "Y";
-        components[2].innerHTML = "Z";
-    } else {
-        components[0].innerHTML = "H";
-        components[1].innerHTML = "S";
-        components[2].innerHTML = "V";
-    }
-    if (arrayOfPixels != null) {
-        setPixelInArray();
+    currentDimension = this.value;
+    updateCheckboxLabels(currentDimension);
+    if (arrayOfPixels !== null) {
+        // setPixelInArray(currentDimension);
     }
 });
+
+function updateCheckboxLabels(model) {
+    const labels = ['R', 'G', 'B']; // Default RGB
+    if (model === "1") {
+        labels[0] = 'X';
+        labels[1] = 'Y';
+        labels[2] = 'Z';
+    } else if (model === "2") {
+        labels[0] = 'H';
+        labels[1] = 'S';
+        labels[2] = 'V';
+    }
+    document.querySelectorAll('.components label').forEach((label, index) => {
+        label.textContent = labels[index];
+    });
+}
+
+/** new */
+// document.getElementById('selectDimension').addEventListener('change', function () {
+//     const dimension = this.value;
+//     updateCanvasAccordingToColorModel(dimension);
+// });
+//
+// function updateCanvasAccordingToColorModel(dimension) {
+//     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+//     let data = imageData.data;
+//
+//     for (let i = 0; i < data.length; i += 4) {
+//         const red = data[i];
+//         const green = data[i + 1];
+//         const blue = data[i + 2];
+//         let converted;
+//
+//         if (dimension === "0") {
+//             continue;
+//         } else if (dimension === "1") {
+//             converted = rgbToXyz(red, green, blue);
+//             const rgb = xyzToRgb(converted.X, converted.Y, converted.Z);
+//             data[i] = rgb.R;
+//             data[i + 1] = rgb.G;
+//             data[i + 2] = rgb.B;
+//         } else if (dimension === "2") {
+//             const hsv = rgbToHsv(red, green, blue);
+//             converted = hsvToRgb([hsv.H, hsv.S, hsv.V]);
+//             data[i] = converted[0];
+//             data[i + 1] = converted[1];
+//             data[i + 2] = converted[2];
+//         }
+//     }
+//     // Update the canvas with new imageData
+//     ctx.putImageData(imageData, 0, 0);
+// }
 
 // DONE
 canvas.onmousemove = function (event) {
@@ -168,10 +191,14 @@ canvas.onmousemove = function (event) {
     const hsv = rgbToHsv(red, green, blue);
     document.getElementById("RGB-color-info").innerHTML = `RGB(${red}, ${green}, ${blue})`;
     document.getElementById("XYZ-color-info").innerHTML = `XYZ(${xyz.X}, ${xyz.Y}, ${xyz.Z})`;
-    document.getElementById("HSV-color-info").innerHTML = `HSV(${parseInt(hsv.H)}°, ${Math.round(hsv.S * 100)}%, ${Math.round(hsv.V * 100)}%)`;
+    document.getElementById("HSV-color-info").innerHTML = `HSV(${hsv.H}°, ${hsv.S}%, ${hsv.V}%)`;
+    // document.getElementById("HSV-color-info").innerHTML = `HSV(${parseInt(hsv.H)}°, ${Math.round(hsv.S * 100)}%, ${Math.round(hsv.V * 100)}%)`;
 }
 
+// DONE
 canvas.onmousedown = function (event) {
+    console.log(`canvas.onmousedown`);
+
     rectangle = [];
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -187,6 +214,7 @@ canvas.onmousedown = function (event) {
         const pixelX = Math.floor(x * (canvas.width / rect.width));
         const pixelY = Math.floor(y * (canvas.height / rect.height));
         let point = new Point(pixelX, pixelY);
+
         rectangle.push(point);
         let tempXMin = Math.min(parseInt(rectangle[0].x), parseInt(rectangle[1].x));
         let tempXMax = Math.max(parseInt(rectangle[0].x), parseInt(rectangle[1].x));
@@ -229,17 +257,17 @@ canvas.onmousedown = function (event) {
     }
 }
 
+/** new */
 checkComponents.forEach((checkbox, index) => {
     checkbox.onchange = () => {
         if (arrayOfPixels !== null) {
             console.log(`Component ${index} changed`);
-            setPixelInArray();
+            setPixelInArray(currentDimension);
         } else {
             console.log("Pixel data not loaded.");
         }
     };
 });
-
 
 function parameterChange() {
     if (rectangle) {
@@ -249,49 +277,68 @@ function parameterChange() {
 }
 
 document.getElementById("rangeParameter").oninput = parameterChange;
+
 document.getElementById("buttonDownload").addEventListener('click', function () {
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
     link.download = `${currentDimension}.png`;
     link.click();
 });
+
 document.getElementById('buttonClear').addEventListener('click', function () {
-    var canvas = document.getElementById('canvas');
-    var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
-    document.getElementById('originalImage').src = '';  // Remove the source of the image
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image()
+
+    img.onload = function () {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = document.getElementById('originalImage').src;
+
+    document.getElementById('checkFirstComponent').checked = true;
+    document.getElementById('checkSecondComponent').checked = true;
+    document.getElementById('checkThirdComponent').checked = true;
+
+    document.getElementById("rangeParameter").value = 0.5;
+
+    rectangle = null;
+    x1.innerHTML = "X1: ";
+    y1.innerHTML = "Y1: ";
+    x2.innerHTML = "X2: ";
+    y2.innerHTML = "Y2: ";
 });
+
 document.getElementById('buttonUpload').addEventListener('click', function () {
     document.getElementById('imageInput').click();
 });
 
 function displayImage(file) {
     if (file) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function (e) {
-            var img = new Image();
+            const img = new Image();
             img.onload = function () {
-                // Set image for display
                 document.getElementById('originalImage').src = img.src;
 
-                // Adjust canvas size
-                var canvas = document.getElementById('canvas');
-                var ctx = canvas.getContext('2d');
-                var containerWidth = canvas.parentElement.offsetWidth;
-                var scale = Math.min(1, containerWidth / img.width); // Ensure the image fits within the container
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                const containerWidth = canvas.parentElement.offsetWidth;
+                const scale = Math.min(1, containerWidth / img.width);
+
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 getPixelInArray();
             };
             img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
-
 }
 
 window.onload = () => {
+    console.log(hsvToRgb(0, 100, 50))
     parameterChange();
 }
