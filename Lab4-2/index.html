@@ -38,7 +38,8 @@
         </div>
         <div class="value-configuration">
             <label for="rangeParameter">Value for 'dark-green' (HSV configuration only):</label>
-            <input type="range" id="rangeParameter" min="0" max="1" value="0.5" step="0.1">
+            <input type="range" id="rangeParameter" min="0" max="100" value="50" step="10"
+                   onchange="changeDarkGreenValue()">
             <p id="paragraphParameter">Parameter: 50%</p>
         </div>
         <div class="positions">

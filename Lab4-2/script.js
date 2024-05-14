@@ -1,11 +1,10 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let resolution = 1000;
-ctx.canvas.width = resolution;
-ctx.canvas.height = resolution;
 
-let width = ctx.canvas.width;
-let height = ctx.canvas.height;
+let width = resolution;
+let height = resolution;
+let currentDimension = "0";
 
 let checkComponents = [document.getElementById("checkFirstComponent"),
     document.getElementById("checkSecondComponent"),
@@ -26,9 +25,6 @@ class Point {
     }
 }
 
-let currentDimension = "0";
-
-// DONE
 function displayImage(file) {
     if (file) {
         const reader = new FileReader();
@@ -54,7 +50,6 @@ function displayImage(file) {
     }
 }
 
-//DONE
 function getPixelInArray() {
     arrayOfPixels = [];
     for (let i = 0; i < height; i++) {
@@ -73,7 +68,6 @@ function getPixelInArray() {
     }
 }
 
-// DONE
 function setPixelInArray() {
     let checkComponents = [
         document.getElementById('checkFirstComponent').checked,
@@ -84,7 +78,7 @@ function setPixelInArray() {
     for (let i = 0; i < height; i++) {
         for (let j = 0; j < width; j++) {
             const pixel = arrayOfPixels[i][j];
-            let finalRGB =  pixel.map((value, index) => checkComponents[index] ? value : 0);
+            let finalRGB = pixel.map((value, index) => checkComponents[index] ? value : 0);
             ctx.fillStyle = `rgb(${finalRGB[0]}, ${finalRGB[1]}, ${finalRGB[2]})`;
             ctx.fillRect(j, i, 1, 1);
         }
@@ -92,35 +86,74 @@ function setPixelInArray() {
 }
 
 function changeSorL() {
-    console.log("changeSorL()");
-    if (rectangle.length != 2) {
+    if (rectangle.length !== 2) {
+        console.error('Error: Rectangle is not defined correctly.');
         return;
     }
     const xMin = parseInt(rectangle[0].x);
     const yMin = parseInt(rectangle[0].y);
     const xMax = parseInt(rectangle[1].x);
     const yMax = parseInt(rectangle[1].y);
+    const rangeValue = document.getElementById("rangeParameter").value;
+    let vValue = parseFloat(rangeValue);
+
+    if (isNaN(vValue) || vValue < 0 || vValue > 1) {
+        console.error('Invalid value for V in HSV:', vValue);
+        alert('Please enter a valid value for V in HSV. It must be between 0 and 1.');
+        return;
+    }
+
     for (let i = yMin; i <= yMax; i++) {
         for (let j = xMin; j <= xMax; j++) {
-            const imageData = ctx.getImageData(j, i, 1, 1);
-            const data = imageData.data;
-            const red = data[0];
-            const green = data[1];
-            const blue = data[2];
-
-            let hsv = rgbToHsv(red, green, blue);
-            hsv.S = hsv.S / 100;
-            hsv.V = document.getElementById("rangeParameter").value;
-
-            console.log("hsv: " + hsv.H + " " + hsv.S + " " + hsv.V);
-            const rgb = hsvToRgb(hsv.H, hsv.S, hsv.V);
-            ctx.fillStyle = `rgb(${rgb.R}, ${rgb.G}, ${rgb.B}`;
+            const rgb = hsvToRgb(120, 1, vValue);
+            if (!rgb || rgb.R < 0 || rgb.R > 255 || rgb.G < 0 || rgb.G > 255 || rgb.B < 0 || rgb.B > 255) {
+                console.error('Error converting HSV to RGB.');
+                continue;
+            }
+            ctx.fillStyle = `rgb(${Math.round(rgb.R)}, ${Math.round(rgb.G)}, ${Math.round(rgb.B)})`;
             ctx.fillRect(j, i, 1, 1);
         }
     }
 }
 
-// DONE
+function changeDarkGreenValue() {
+    const img = new Image();
+    const xMin = parseInt(rectangle[0].x);
+    const yMin = parseInt(rectangle[0].y);
+    const xMax = parseInt(rectangle[1].x);
+    const yMax = parseInt(rectangle[1].y);
+    let rangeValue = parseFloat(document.getElementById("rangeParameter").value);
+    if (isNaN(rangeValue) || rangeValue < 0 || rangeValue > 100) {
+        console.error('Invalid value for V in HSV:', rangeValue);
+        alert('Please enter a valid value for V in HSV. It must be between 0 and 1.');
+        return;
+    }
+
+    ctx.drawImage(img, xMin, yMin, xMax, yMax);
+    let imgData = ctx.getImageData(xMin, yMin, xMax, yMax);
+
+    let hsv = [];
+    for (let i = 0; i < imgData.data.length; i += 4) {
+        hsv.push(rgbToHsv(imgData.data[i], imgData.data[i + 1], imgData.data[i + 2]));
+    }
+
+    hsv.forEach(element => {
+        if (element.H >= 100 && element.H <= 140) {
+            element.V = rangeValue;
+        }
+    });
+
+    for (let i = 0, j = 0; j < hsv.length, i < imgData.data.length; i += 4, j += 1) {
+        let rgb = hsvToRgb(hsv[j].H, hsv[j].S, hsv[j].V);
+        imgData.data[i] = rgb.R;
+        imgData.data[i + 1] = rgb.G;
+        imgData.data[i + 2] = rgb.B;
+    }
+
+    console.log(hsv);
+    ctx.putImageData(imgData, xMin, yMin);
+}
+
 function updateCanvasAccordingToColorModel(dimension) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     let data = imageData.data;
@@ -151,34 +184,15 @@ function updateCanvasAccordingToColorModel(dimension) {
     ctx.putImageData(imageData, 0, 0);
 }
 
-// DONE
-document.getElementById('selectDimension').addEventListener('change', function () {
-    currentDimension = this.value;
-    updateCanvasAccordingToColorModel(currentDimension);
-});
-
-// DONE
-checkComponents.forEach((checkbox, index) => {
-    checkbox.onchange = () => {
-        if (arrayOfPixels !== null) {
-            console.log(`Component ${index} changed`);
-            setPixelInArray();
-        } else {
-            console.log("Pixel data not loaded.");
-        }
-    };
-});
-
 function parameterChange() {
     if (rectangle) {
         setPixelInArray();
-        changeSorL();
+        // changeSorL();
     }
 }
 
 document.getElementById("rangeParameter").oninput = parameterChange;
 
-// DONE
 document.getElementById("buttonDownload").addEventListener('click', function () {
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
@@ -186,7 +200,6 @@ document.getElementById("buttonDownload").addEventListener('click', function () 
     link.click();
 });
 
-// DONE
 document.getElementById('buttonClear').addEventListener('click', function () {
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -211,12 +224,26 @@ document.getElementById('buttonClear').addEventListener('click', function () {
     y2.innerHTML = "Y2: ";
 });
 
-// DONE
 document.getElementById('buttonUpload').addEventListener('click', function () {
     document.getElementById('imageInput').click();
 });
 
-// DONE
+document.getElementById('selectDimension').addEventListener('change', function () {
+    currentDimension = this.value;
+    // updateCanvasAccordingToColorModel(currentDimension);
+});
+
+checkComponents.forEach((checkbox, index) => {
+    checkbox.onchange = () => {
+        if (arrayOfPixels !== null) {
+            console.log(`Component ${index} changed`);
+            setPixelInArray();
+        } else {
+            console.log("Pixel data not loaded.");
+        }
+    };
+});
+
 canvas.onmousemove = function (event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -236,7 +263,6 @@ canvas.onmousemove = function (event) {
     // document.getElementById("HSV-color-info").innerHTML = `HSV(${parseInt(hsv.H)}°, ${Math.round(hsv.S * 100)}%, ${Math.round(hsv.V * 100)}%)`;
 }
 
-// DONE
 canvas.onmousedown = function (event) {
     console.log(`canvas.onmousedown`);
 
@@ -286,7 +312,7 @@ canvas.onmousedown = function (event) {
             x2.innerHTML = `X2: ${tempXMax}`;
             y2.innerHTML = `Y2: ${tempYMax}`;
             if (arrayOfPixels != null) {
-                changeSorL();
+                changeDarkGreenValue();
             }
         } else {
             rectangle = null;
@@ -298,7 +324,6 @@ canvas.onmousedown = function (event) {
     }
 }
 
-// DONE
 window.onload = () => {
     console.log(hsvToRgb(0, 100, 50))
     parameterChange();
