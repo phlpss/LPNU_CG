@@ -4,16 +4,22 @@ let resolution = 1000;
 
 let width = resolution;
 let height = resolution;
-let currentDimension = "0";
+let currentDimension = "RGB";
 
 let checkComponents = [document.getElementById("checkFirstComponent"),
     document.getElementById("checkSecondComponent"),
     document.getElementById("checkThirdComponent")];
 
+let labelComponents = [
+    document.querySelector("label[for='checkFirstComponent']"),
+    document.querySelector("label[for='checkSecondComponent']"),
+    document.querySelector("label[for='checkThirdComponent']")
+];
+
 let x1 = document.getElementById("x1");
 let y1 = document.getElementById("y1");
-let x2 = document.getElementById("x2");
-let y2 = document.getElementById("y2");
+let x2 = document.getElementById("width");
+let y2 = document.getElementById("height");
 
 let arrayOfPixels = null;
 let rectangle = null;
@@ -85,37 +91,6 @@ function setPixelInArray() {
     }
 }
 
-function changeSorL() {
-    if (rectangle.length !== 2) {
-        console.error('Error: Rectangle is not defined correctly.');
-        return;
-    }
-    const xMin = parseInt(rectangle[0].x);
-    const yMin = parseInt(rectangle[0].y);
-    const xMax = parseInt(rectangle[1].x);
-    const yMax = parseInt(rectangle[1].y);
-    const rangeValue = document.getElementById("rangeParameter").value;
-    let vValue = parseFloat(rangeValue);
-
-    if (isNaN(vValue) || vValue < 0 || vValue > 1) {
-        console.error('Invalid value for V in HSV:', vValue);
-        alert('Please enter a valid value for V in HSV. It must be between 0 and 1.');
-        return;
-    }
-
-    for (let i = yMin; i <= yMax; i++) {
-        for (let j = xMin; j <= xMax; j++) {
-            const rgb = hsvToRgb(120, 1, vValue);
-            if (!rgb || rgb.R < 0 || rgb.R > 255 || rgb.G < 0 || rgb.G > 255 || rgb.B < 0 || rgb.B > 255) {
-                console.error('Error converting HSV to RGB.');
-                continue;
-            }
-            ctx.fillStyle = `rgb(${Math.round(rgb.R)}, ${Math.round(rgb.G)}, ${Math.round(rgb.B)})`;
-            ctx.fillRect(j, i, 1, 1);
-        }
-    }
-}
-
 function changeDarkGreenValue() {
     const img = new Image();
     const xMin = parseInt(rectangle[0].x);
@@ -164,30 +139,27 @@ function updateCanvasAccordingToColorModel(dimension) {
         const blue = data[i + 2];
         let converted;
 
-        if (dimension === "0") {
-            continue;
-        } else if (dimension === "1") {
+        if (dimension === "RGB") {
+        } else if (dimension === "XYZ") {
             converted = rgbToXyz(red, green, blue);
             const rgb = xyzToRgb(converted.X, converted.Y, converted.Z);
             data[i] = rgb.R;
             data[i + 1] = rgb.G;
             data[i + 2] = rgb.B;
-        } else if (dimension === "2") {
-            const hsv = rgbToHsv(red, green, blue);
-            converted = hsvToRgb([hsv.H, hsv.S, hsv.V]);
-            data[i] = converted[0];
-            data[i + 1] = converted[1];
-            data[i + 2] = converted[2];
+        } else if (dimension === "HSV") {
+            converted = rgbToHsv(red, green, blue);
+            const rgb = hsvToRgb(converted.H, converted.S, converted.V);
+            data[i] = rgb.R;
+            data[i + 1] = rgb.G;
+            data[i + 2] = rgb.B;
         }
     }
-    // Update the canvas with new imageData
     ctx.putImageData(imageData, 0, 0);
 }
 
 function parameterChange() {
     if (rectangle) {
         setPixelInArray();
-        // changeSorL();
     }
 }
 
@@ -214,8 +186,7 @@ document.getElementById('buttonClear').addEventListener('click', function () {
     document.getElementById('checkFirstComponent').checked = true;
     document.getElementById('checkSecondComponent').checked = true;
     document.getElementById('checkThirdComponent').checked = true;
-
-    document.getElementById("rangeParameter").value = 0.5;
+    3
 
     rectangle = null;
     x1.innerHTML = "X1: ";
@@ -230,7 +201,21 @@ document.getElementById('buttonUpload').addEventListener('click', function () {
 
 document.getElementById('selectDimension').addEventListener('change', function () {
     currentDimension = this.value;
-    // updateCanvasAccordingToColorModel(currentDimension);
+    document.getElementById("paragraphSelectDimension").innerHTML = `${currentDimension} configuration`;
+    if (currentDimension === "RGB") {
+        labelComponents[0].innerHTML = "R";
+        labelComponents[1].innerHTML = "G";
+        labelComponents[2].innerHTML = "B";
+    } else if (currentDimension === "XYZ") {
+        labelComponents[0].innerHTML = "X";
+        labelComponents[1].innerHTML = "Y";
+        labelComponents[2].innerHTML = "Z";
+    } else {
+        labelComponents[0].innerHTML = "H";
+        labelComponents[1].innerHTML = "S";
+        labelComponents[2].innerHTML = "V";
+    }
+    updateCanvasAccordingToColorModel(currentDimension);
 });
 
 checkComponents.forEach((checkbox, index) => {
@@ -260,7 +245,6 @@ canvas.onmousemove = function (event) {
     document.getElementById("RGB-color-info").innerHTML = `RGB(${red}, ${green}, ${blue})`;
     document.getElementById("XYZ-color-info").innerHTML = `XYZ(${xyz.X}, ${xyz.Y}, ${xyz.Z})`;
     document.getElementById("HSV-color-info").innerHTML = `HSV(${hsv.H}°, ${hsv.S}%, ${hsv.V}%)`;
-    // document.getElementById("HSV-color-info").innerHTML = `HSV(${parseInt(hsv.H)}°, ${Math.round(hsv.S * 100)}%, ${Math.round(hsv.V * 100)}%)`;
 }
 
 canvas.onmousedown = function (event) {
