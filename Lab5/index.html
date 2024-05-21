@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рух фігури на площині</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+<!--    <script type="module" src="matrix-js"></script>-->
+</head>
+<body>
+<div class="container">
+    <div id="canvas-container">
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+    <form id="form">
+        <label for="x1"></label><input type="number" id="x1" name="x1" placeholder="X1" required>
+        <label for="y1"></label><input type="number" id="y1" name="y1" placeholder="Y1" required>
+        <label for="square-size"></label><input type="number" id="square-size" name="square-width" placeholder="Розмір квадрата" required>
+
+        <label for="scale"></label>
+        <input type="number" id="scale" name="scale" placeholder="Коефіцієнт масштабування" required>
+        <label for="selectEdge" style="font-family: Arial, sans-serif; font-size: 14px">
+            Оберіть вершину:
+            <select id="selectEdge">
+                <option value="x1">X1</option>
+                <option value="y1">Y1</option>
+                <option value="x2">X2</option>
+                <option value="y2">Y2</option>
+            </select>
+        </label>
+
+        <div style="margin: 20px 7px 20px;">
+        <label for="repaint">Перемальовувати?</label><input type="checkbox" id="repaint" name="repaint">
+        </div>
+        <button type="submit">Рух</button>
+        <button type="button" id="stop">Зупинити</button>
+        <button type="button" id="resume">Продовжити</button>
+    </form>
+</div>
+</body>
+</html>
