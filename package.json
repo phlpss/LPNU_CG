@@ -12,6 +12,7 @@
   },
   "private": true,
   "dependencies": {
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "matrix-js": "^1.6.1"
   }
 }
