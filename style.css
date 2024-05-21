@@ -99,7 +99,7 @@ button:hover {
     background: none;
 }
 
-.canvas-container {
+.image-container {
     /*flex: 1;*/
     align-self: stretch;
     border: 1px solid #ddd;

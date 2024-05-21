@@ -1,89 +1,94 @@
 body {
-    background-color: #f4f4f9;
+    display: flex;
+    flex-direction: column; /* Maintains vertical stacking of header and main content */
+    align-items: center; /* Center the content horizontally */
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
     margin-top: 20px;
 }
-.img-preview {
-    height: 400px;
-    width: auto; /* Maintain aspect ratio */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    padding: 5px;
+
+h1 {
+    margin-bottom: 20px; /* Add space below the header */
 }
 
-.control-label {
-    margin-top: 10px;
-    margin-bottom: 0;
-}
-
-.toolbar {
+.main-container {
+    width: 90%;
     display: flex;
-    flex-direction: column;
-    justify-content: start;
-    /*margin-top: 34px;*/
-    width: 25%;
-
-    padding: 10px;
-    background: #fdfdfd;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.image-section {
-    margin-top: 10px;
-    margin-left: 15px;
-    display: flex;
+    align-items: flex-start;
+    padding: 20px;
     justify-content: space-between;
 }
 
-.custom-file-input {
-    border-radius: 0.25rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
-}
-
-.button {
+.image-container {
+    display: flex;
+    justify-content: space-around;
     align-items: center;
-    background-color: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: .25rem;
-    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
-    box-sizing: border-box;
-    color: rgba(0, 0, 0, 0.85);
+    width: 100%;
+    gap: 20px;
+    max-width: 60%;
+    height: auto;
+    margin-right: 20px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    /*padding: 20px;*/
+}
+
+#originalImage, #canvas {
+    max-width: 45%;  /* Each takes up to 45% of the parent width */
+    height: auto;  /* Keeps the aspect ratio of the image */
+    display: inline-block;  /* Aligns items in line */
+    vertical-align: top;  /* Aligns items to the top */
+}
+
+.controls-container {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+select, input, button {
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    background-color: #fff;
     cursor: pointer;
-    display: inline-flex;
-    font-family: system-ui, -apple-system, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    justify-content: center;
-    line-height: 1.25;
-    margin-bottom: 0.5rem;
-    min-height: 3rem;
-    padding: calc(.875rem - 1px) calc(1.5rem - 1px);
-    position: relative;
-    text-decoration: none;
-    transition: all 250ms;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    vertical-align: baseline;
-    width: auto;
+    outline: none;
+    font-size: 14px;
 }
 
-.button:hover,
-.button:focus {
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-    color: rgba(0, 0, 0, 0.65);
+button {
+    background-color: #a7c7e7;
+    color: #fff;
+    border: none;
 }
 
-.button:hover {
-    transform: translateY(-1px);
+button:hover {
+    background-color: #85b0d1;
 }
 
-.button:active {
-    background-color: #F0F0F1;
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
-    color: rgba(0, 0, 0, 0.65);
-    transform: translateY(0);
+input[type="range"] {
+    width: 90%; /* Make the slider take full width of the controls area */
+}
+
+input[type="file"] {
+    cursor: pointer;
+    display: none;
+}
+
+p, #paragraphSelectDimension, #RGB-color-info, #XYZ-color-info, #HSV-color-info, #x1, #y1, #width, #height {
+    margin: 5px;
+    font-size: 14px;
+    background-color: #e7eff6;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #d3d3d3;
+}
+
+select:focus, input:focus, button:focus {
+    border-color: #a7c7e7;
 }

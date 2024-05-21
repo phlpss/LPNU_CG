@@ -1,70 +1,64 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Досліди з моделями кольорів</title>
-
-    <link href="style.css" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
-    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.2/p5.js"></script>-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="sketch.js"></script>
+    <title>Color Designer</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<h1>Color Designer</h1>
+<div class="main-container">
+    <div class="image-container">
+        <img id="originalImage" style="max-width: 45%; height: auto; display: inline-block;">
+        <canvas id="canvas" style="max-width: 45%; height: auto; display: inline-block;"></canvas>
+    </div>
 
-<div class="container">
-    <h2 class="mb-4">Програма "Досліди з моделями кольорів"</h2>
-    <form>
-        <div class="custom-file mb-3">
-            <input type="file" class="custom-file-input" id="imageInput" onchange="displayImage(this)">
-            <label class="custom-file-label" for="imageInput">Виберіть файл зображення...</label>
+    <div class="controls-container">
+        <div class="dropdowns">
+            <label>
+                Color Dimension:
+                <select id="selectDimension">
+                    <option value="RGB">RGB</option>
+                    <option value="XYZ">XYZ</option>
+                    <option value="HSV">HSV</option>
+                </select>
+            </label>
+            <p id="paragraphSelectDimension">RGB configuration</p>
         </div>
-        <div class="image-section">
-            <div class="row">
-                <figure class="figure">
-                    <img id="originalImage" src="default-img.png" alt="Оригінальне зображення"
-                         class="img-fluid img-preview" style="max-height: 400px;">
-                    <figcaption class="figure-caption">Оригінальне зображення</figcaption>
-                </figure>
-
-                <figure class="figure">
-                    <canvas id="canvasContainer" class="img-fluid img-preview" height="400"></canvas>
-                    <figcaption class="figure-caption">Редаговане зображення</figcaption>
-                </figure>
-            </div>
-
-            <div class="toolbar">
-                <div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="colorSpaceRadio"
-                               id="RGB" onclick="applyXYZtoRGB()">
-                        <label class="form-check-label" for="RGB">RGB</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="colorSpaceRadio"
-                               id="XYZ" onclick="applyRGBtoXYZ()">
-                        <label class="form-check-label" for="XYZ">XYZ</label>
-                    </div>
-                </div>
-
-                <label for="colorModifier" class="control-label">Змінити атрибут 'value' для кольору 'dark
-                    green':</label>
-                <input type="range" class="form-range" id="colorModifier" min="-100" max="100" value="0">
-                <button type="button" class="button" onclick="applyColorChanges()">Застосувати зміни</button>
-                <button type="button" class="button" onclick="displayColorInfo()">Інформація про колір</button>
-
-                <button type="button" class="button" onclick="saveCanvasImage()">Зберегти зображення
-                </button>
-            </div>
-
+        <div class="components">
+            <label for="checkFirstComponent">R</label><input type="checkbox" id="checkFirstComponent" checked>
+            <label for="checkSecondComponent">G</label><input type="checkbox" id="checkSecondComponent" checked>
+            <label for="checkThirdComponent">B</label><input type="checkbox" id="checkThirdComponent" checked>
         </div>
-    </form>
+        <div class="color-info">
+            <p id="RGB-color-info"></p>
+            <p id="XYZ-color-info"></p>
+            <p id="HSV-color-info"></p>
+        </div>
+        <div class="value-configuration">
+            <label for="rangeParameter">Value for 'dark-green' (HSV configuration only):</label>
+            <input type="range" id="rangeParameter" min="0" max="100" value="50" step="10"
+                   onchange="changeDarkGreenValue()">
+<!--            <p id="paragraphParameter">Parameter: 50%</p>-->
+        </div>
+        <div class="positions">
+            <p id="x1">X1: </p>
+            <p id="y1">Y1: </p>
+            <p id="width">X2: </p>
+            <p id="height">Y2: </p>
+        </div>
+        <div class="actions">
+            <button id="buttonClear">Clear</button>
+            <button id="buttonUpload">Upload Image</button>
+            <input type="file" class="custom-file-input" id="imageInput" onchange="displayImage(this.files[0])"
+                   style="display: none;">
+            <input type="file" id="uploadImage">
+            <button id="buttonDownload">Download Image</button>
+        </div>
+    </div>
 </div>
+<script src="script.js"></script>
+<script src="colorModelConversion.js"></script>
 </body>
 </html>
-
-
