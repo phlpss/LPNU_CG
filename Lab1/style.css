@@ -58,7 +58,7 @@ h1 {
     background-color: var(--color-button-hover);
 }
 
-.controls {
+.controls-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 10px;
